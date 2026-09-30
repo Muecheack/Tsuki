@@ -1,0 +1,25 @@
+{
+  "_comment": "前端登录页到后端的",
+  "a": {
+    "userName": "xxx",
+    "userPassword": "xxx"
+  },
+  "_commentt": "前端与ai聊天时发送的",
+  "b": {
+    "userId": "xxx",
+    "role": "user",
+    "content": [
+      "x",
+      "x"
+    ]
+  },
+  "_commenttt": "AI给后端的回复",
+  "c": {
+    "role": "assistant",
+    "content": [
+      "x",
+      "x",
+      "x"
+    ]
+  },
+}

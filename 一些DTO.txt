@@ -1,0 +1,145 @@
+                     ┌─────────────────────┐
+                     │      AvatarUrl      │  头像库（内置字典，18条种子）
+                     ├─────────────────────┤
+                     │ Id           (PK)   │
+                     │ Name                │
+                     │ Url                 │
+                     │ Description         │
+                     └──────────┬──────────┘
+                                │ 1
+                                │        「一个头像可被多个用户用」
+                                │ 0..N   （User.AvatarUrlId 可空）
+                     ┌──────────┴──────────┐
+                     │        User         │  真人 + AI 共用一张表
+                     ├─────────────────────┤
+                     │ Id           (PK)   │
+                     │ Name                │  ← 真人名 / AI名，两者共用
+                     │ Gender       (真人) │
+                     │ CallName     (真人) │
+                     │ ApiKey       (真人) │
+                     │ AvatarAI     (AI)   │  ← AI 专属，真人 null
+                     │ AvatarUrlId  (FK)   │
+                     └──┬────────┬──────┬──┘
+                        │ 1     │ 1    │ 1
+                        │       │      │
+                        │       │      │
+              ┌─────────┘       │      └──────────────┐
+              │ 0..N            │ 0..N                │ 0..N
+    ┌─────────┴────────┐        │        ┌────────────┴────────┐
+    │SessionParticipant│        │        │      Messages       │
+    ├──────────────────┤        │        ├─────────────────────┤
+    │ Id         (PK)  │        │        │ Id           (PK)   │
+    │ SessionId  (FK)  │        │        │ SessionId    (FK)   │
+    │ UserId     (FK)  │        │        │ UserId       (FK)   │
+    │ JoinedAt         │        │        │ Type  (text|file)   │
+    └─────────┬────────┘        │        │ Content             │
+              │ 0..N            │        │ Date                │
+              │                 │        └─────────────────────┘
+              │ 1               │
+    ┌─────────┴────────┐        │
+    │     Session      │        │
+    ├──────────────────┤        │
+    │ Id         (PK)  │        │
+    └──────────────────┘        │
+                                │
+              ┌─────────────────┘
+              │  M : N   （EF 连接表 TagsUser）
+    ┌─────────┴────────┐
+    │       Tags       │  标签库（内置字典，19条种子）
+    ├──────────────────┤
+    │ Id         (PK)  │
+    │ TagName          │
+    └──────────────────┘
+
+
+KeKePage.vue给ChatPage.vue父传子:
+	sender: string
+
+聊天列表的格式:
+	[
+		{
+			name: "xxx",
+			message:[
+				{sender:"xxx", text: "xxxx"}
+			]
+		},
+	]
+
+朋友圈相关格式:
+[
+	{ name: "xxx", action: "like" | null, comment: "xxx" | null , time: "xxx"},
+]
+
+前端发送给后端（注册）
+{
+	name: xxx,
+	gender: xxx,
+	call: xxx
+}
+
+后端返回给前端(注册)
+{
+	code: xxx,
+	message: xxx,
+	data: {
+		userId: xxx,
+		token: xxx
+	}
+}
+
+前端发给后端(聊天)
+{
+	userName: xxx,
+	sessionId(可选): 000,
+	type: xx,
+	message:xxx 
+}
+
+前端期待的(聊天)
+{
+  code: number
+  message: string
+  data: {
+    sessionId?: string
+    reply?: string
+  }
+}
+
+python期望接收的(常规聊天)
+{
+	sessionId: 000,
+	name(真的name!不是单词name): [
+		{ role: xxx, content: xxx },
+		{ role: xxx, content: xxx },
+	],
+}
+
+python回复的
+{
+	aiName: xxx, 
+	sessionId(可选): 000,
+	message: xxx,
+	type: xxx
+}
+
+python期望接收的(预人设):
+     {
+      "sessionId": 123,
+      "userNameDict": {
+          "张三": {
+               "aiName": "...",
+                "session": [],
+                "tags": [...],
+		"avatars": [{...}],
+                "gender": "...",
+              "callName": "..."
+           }
+        }
+     }
+
+python回复的(预人设):
+{
+    "sessionId": 000,
+    "reply": ...,
+    "selected": { tags: [...], avatars: 0 }
+}

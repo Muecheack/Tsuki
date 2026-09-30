@@ -1,0 +1,77 @@
+{
+  "login": {
+    "welcome": "欢迎!",
+    "nickname": "昵称",
+    "password": "密码",
+    "nicknamePlaceholder": "输入昵称",
+    "passwordPlaceholder": "输入密码",
+    "nicknameRequired": "*昵称忘填了!(｡>﹏<｡)",
+    "passwordRequired": "*密码忘填了!(｡>﹏<｡)",
+    "submit": "登录",
+    "noAccount": "没有账号的话~",
+    "goRegister": "点击注册!",
+    "success": "登录成功! 欢迎 {name}喵!\\(ᗒᗨᗕ\\)"
+  },
+  "register": {
+    "title": "注册新账号",
+    "subtitle": "这样才能见到KeKe喵(*´∀`)~♥",
+    "nickname": "昵称",
+    "password": "密码",
+    "confirmPassword": "确认密码",
+    "nicknamePlaceholder": "你叫什么喵~",
+    "passwordPlaceholder": "保密信息呦~",
+    "confirmPlaceholder": "再输一遍喵~",
+    "nicknameRequired": "*昵称没填呢喵~",
+    "passwordRequired": "*密码没填呢喵~",
+    "confirmRequired": "*确认一下呀喵~",
+    "passwordMismatch": "*两次输入的密码不一致喵~再确认一遍喵~",
+    "submit": "注册",
+    "hasAccount": "有账号喵?",
+    "goLogin": "返回登录~",
+    "success": "注册成功喵~幸苦啦{name}喵~\\(=^･ω･^=)/"
+  },
+  "keke": {
+    "notDone": "还没做呢喵...",
+    "moments": "朋友圈",
+    "contacts": "通讯~录?",
+    "settings": "设置",
+    "emptyChat": "选择好友开始聊天喵~₍^. .^₎⟆",
+    "panelMomentsTitle": "朋朋友友圈圈",
+    "panelSettingsTitle": "设置",
+    "pin": "置顶",
+    "remove": "删了",
+    "requestHistoryTitle": "申请记录喵~",
+    "requestHistoryTip": "查看好友申请记录"
+  },
+  "chat": {
+    "more": "更多",
+    "me": "我",
+    "placeholder": "说点什么...",
+    "send": "发送"
+  },
+  "moments": {
+    "nicknamePlaceholder": "占位昵称",
+    "commentPlaceholder": "评论喵",
+    "me": "我:"
+  },
+  "addFriends": {
+    "searchPlaceholder": "想要加谁喵?",
+    "searching": "搜索中...",
+    "detailPlaceholder": "详情页待补喵...(占位)",
+    "back": "← 返回搜索"
+  },
+  "friendsRequest": {
+    "empty": "还没有申请记录呢喵...₍˄·͈༝·͈˄₎◞"
+  },
+  "settings": {
+    "language": "选择语言",
+    "theme": "主题",
+    "languagePlaceholder": "默认简体中文",
+    "themePlaceholder": "默认浅色",
+    "background": "背景设置",
+    "defaultBg": "默认猫猫",
+    "footer": "没了喵...想不到还有啥能装的了，枉费这么大空间了喵...(T▽T)",
+    "light": "浅色",
+    "dark": "深色"
+  }
+}

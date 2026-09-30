@@ -1,0 +1,2 @@
+[permissions]
+allow = ["Bash=$out = npm run typecheck:node 2>&1 | Select-Object -Last 6; $out", "Bash=$c = Get-Content \"node_modules/@creatorsn/vfluent3/dist/vfluent3.js\"; $c[15040..15066] | ForEach-Object { $_.Trim().Substring(0, [Math]::Min(140, $_.Trim().Length)) }"]

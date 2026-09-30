@@ -1,0 +1,114 @@
+{
+  "login": {
+    "title": "欢迎!",
+    "nickname": "昵称",
+    "nicknamePlaceholder": "请输入昵称",
+    "nicknameEmpty": "*昵称不能为空",
+    "password": "密码",
+    "passwordPlaceholder": "输入密码",
+    "passwordEmpty": "*密码不能为空",
+    "submit": "登录",
+    "noAccount": "没有账号?",
+    "goRegister": "点击注册",
+    "success": "aaa"
+  },
+  "register": {
+    "title": "注册账号",
+    "subtitleBefore": "进入",
+    "subtitleAfter": "",
+    "nickname": "昵称",
+    "nicknamePlaceholder": "请输入昵称",
+    "nicknameEmpty": "*昵称不能为空",
+    "userExist": "用户已存在",
+    "gender": "性别",
+    "boy": "♂男孩",
+    "girl": "♀女孩",
+    "call": "称呼",
+    "placeholder": "多大了？",
+    "olderBrother": "哥哥",
+    "shota": "正太",
+    "olderSister": "姐姐",
+    "loli": "萝莉",
+    "callValueNull": "*请选择称呼",
+    "apiKey": "API Key",
+    "apiKeyInputPlaceholder": "请输入 API Key",
+    "apiKeyNull": "*API Key 未填写，无法进入。",
+    "submit": "注册",
+    "hasAccount": "已有账号?",
+    "backLogin": "去登录",
+    "success": "aaa"
+  },
+  "keke": {
+    "zoom": "功能开发中",
+    "pin": "置顶",
+    "remove": "删除",
+    "moments": "朋友圈",
+    "addFriend": "添加好友",
+    "requests": "好友申请记录",
+    "settings": "设置",
+    "panelSetting": "设置",
+    "panelMoments": "朋友圈",
+    "panelAddFriend": "添加好友",
+    "panelRequests": "申请记录",
+    "empty": "选择左侧联系人以进入会话"
+  },
+  "chat": {
+    "more": "更多",
+    "me": "我",
+    "placeholder": "输入文本",
+    "send": "发送",
+    "fileTag": "[文件]",
+    "loading": ""
+  },
+  "moments": {
+    "placeholderName": "占位昵称",
+    "commentPlaceholder": "评论",
+    "me": "我",
+    "publish": "发布"
+  },
+  "card": {
+    "contactLabel": "Tsuki 联系人",
+    "personality": "性格",
+    "applyFriend": "申请添加好友"
+  },
+  "guide": {
+    "official": "我是官方",
+    "hello": "你好！",
+    "intro": "这是一款模拟真实社交软件的 AI 聊天产品。",
+    "contactsAreAI": "这里的所有联系人都是 AI（除本机外，因为这些话都是预先写好的）。",
+    "chat": "你可以在这里与大家畅所欲言。",
+    "talk": "例如倾诉……",
+    "discuss": "讨论……",
+    "shareFile": "分享文件……",
+    "shareImage": "分享图片……",
+    "moments": "发布朋友圈动态（位于左下角）。",
+    "noLewd": "❌禁止色情内容。",
+    "noCall": "暂不支持语音通话和电话功能。",
+    "recommend": "我先为你推荐一位联系人，你可以与她聊天。",
+    "waiting": "她已经等你很久了。",
+    "bye": "我先失陪了。"
+  },
+  "addFriend": {
+    "searchPlaceholder": "添加好友",
+    "searching": "搜索中...",
+    "detailPlaceholder": "ddd",
+    "back": "aaa",
+    "addSuccess": "添加成功",
+    "alreadyFriend": "好友已存在",
+    "applyFail": "出现错误...申请失败"
+  },
+  "request": {
+    "empty": "尚无申请记录"
+  },
+  "settings": {
+    "language": "选择语言",
+    "theme": "主题",
+    "background": "背景设置",
+    "langPlaceholder": "默认猫猫语(简体中文)",
+    "themePlaceholder": "默认浅色",
+    "light": "浅色",
+    "dark": "深色",
+    "defaultBg": "默认猫猫",
+    "footer": "暂无其它设置"
+  }
+}

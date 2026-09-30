@@ -1,0 +1,115 @@
+{
+  "login": {
+    "title": "欢迎!",
+    "nickname": "昵称",
+    "nicknamePlaceholder": "输入昵称",
+    "nicknameEmpty": "*昵称忘填了!(｡>﹏<｡)",
+    "password": "密码",
+    "passwordPlaceholder": "输入密码",
+    "passwordEmpty": "*密码忘填了!(｡>﹏<｡)",
+    "submit": "登录",
+    "noAccount": "没有账号的话~",
+    "goRegister": "点击注册!",
+    "success": "登录成功! 欢迎 {name}喵!\\(ᗒᗨᗕ\\)"
+  },
+  "register": {
+    "title": "介绍下自己₍^. .^₎⟆",
+    "subtitleBefore": "这样才能见到",
+    "subtitleAfter": "喵(*´∀`)~♥",
+    "nickname": "昵称",
+    "nicknamePlaceholder": "你叫什么喵~",
+    "nicknameEmpty": "*昵称没填呢喵~",
+    "userExist": "用户已存在喵~",
+    "gender": "性别",
+    "boy": "♂男孩",
+    "girl": "♀女孩",
+    "call": "称呼",
+    "canNotSay": "神秘占位",
+    "placeholder": "多大了喵~",
+    "olderBrother": "哥哥",
+    "shota": "正太",
+    "olderSister": "姐姐",
+    "loli": "萝莉",
+    "callValueNull": "*还不知到你多大呢喵...",
+    "apiKey": "api key",
+    "apiKeyInputPlaceholder": "输入你的api_key喵~",
+    "apiKeyNull": "*api key还没填呢!不然进不去了喵!",
+    "submit": "注册",
+    "hasAccount": "有账号喵?",
+    "backLogin": "返回登录~",
+    "success": "注册成功喵~幸苦啦{name}喵~\\(=^･ω･^=)/"
+  },
+  "keke": {
+    "zoom": "还没做呢喵...",
+    "pin": "置顶",
+    "remove": "删了",
+    "moments": "朋友圈",
+    "addFriend": "点击添加好友",
+    "requests": "查看好友申请记录",
+    "settings": "设置",
+    "panelSetting": "设置",
+    "panelMoments": "朋朋友友圈圈",
+    "panelAddFriend": "想要加谁喵~",
+    "panelRequests": "申请记录喵~",
+    "empty": "选择好友开始聊天喵~₍^. .^₎⟆"
+  },
+  "chat": {
+    "more": "更多",
+    "me": "我",
+    "placeholder": "说点什么...",
+    "send": "咻~啪!",
+    "fileTag": "[文件]",
+    "loading": "加载中喵..."
+  },
+  "moments": {
+    "placeholderName": "占位昵称",
+    "commentPlaceholder": "评论喵",
+    "me": "我",
+    "publish": "发布"
+  },
+  "card": {
+    "contactLabel": "Tsuki联系人",
+    "personality": "性格",
+    "applyFriend": "申请好友"
+  },
+  "guide": {
+    "official": "我是官方喵~",
+    "hello": "嗨喵!",
+    "intro": "这是一款仿真实社交软件的AI Chat类型产品喵~",
+    "contactsAreAI": "因此这里的所有联系人都是AI喵(除了本喵,因为这些话都是提前写死的喵...)",
+    "chat": "你可以在这里和大家畅所欲言喵",
+    "talk": "比如倾诉啊~",
+    "discuss": "讨论啊~",
+    "shareFile": "分享文件啊~",
+    "shareImage": "分享图片啊~",
+    "moments": "发朋友圈啊~(可以发动态的喵!就在左下角)",
+    "noLewd": "❌色色哒咩~",
+    "noCall": "但是不能发语言和打电话(因为我不会喵...)",
+    "recommend": "呐呐~我给你推个人先,你和她唠吧",
+    "waiting": "她等你好久了呢喵",
+    "bye": "我就不陪你了喵~"
+  },
+  "addFriend": {
+    "searchPlaceholder": "想要加谁喵?",
+    "searching": "搜索中...",
+    "detailPlaceholder": "详情页待补喵...(占位)",
+    "back": "← 返回搜索",
+    "addSuccess": "添加成功喵~",
+    "alreadyFriend": "好友已经在等你了喵~",
+    "applyFail": "出现错误喵...申请失败"
+  },
+  "request": {
+    "empty": "还没有申请记录呢喵...₍˄·͈༝·͈˄₎◞"
+  },
+  "settings": {
+    "language": "选择语言",
+    "theme": "主题",
+    "background": "背景设置",
+    "langPlaceholder": "默认猫猫语(简体中文)",
+    "themePlaceholder": "默认浅色",
+    "light": "浅色",
+    "dark": "深色",
+    "defaultBg": "默认猫猫",
+    "footer": "没了喵...想不到还有啥能装的了，枉费这么大空间了喵...(T▽T)"
+  }
+}

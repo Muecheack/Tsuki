@@ -1,0 +1,112 @@
+﻿using cs.Repo;
+using Microsoft.EntityFrameworkCore;
+
+namespace cs.DbAction;
+
+public class DbActions
+{
+    private readonly KeKeContext _db;
+
+    public DbActions(KeKeContext db)
+    {
+        _db = db;
+    }
+    
+    /// 把前端传入的名字，性别，称呼，key扔数据库里
+    public async Task<User> AddInDbAsync(string name, string gender, string callName, string apiKey, int? avatarUrlId = null)
+    {
+        var user = new User { Name = name, Gender = gender, CallName = callName, ApiKey = apiKey, AvatarUrlId = avatarUrlId };
+        await _db.Users.AddAsync(user);
+        await _db.SaveChangesAsync();
+        return user;
+    }
+
+
+    // 添加AI(光加个名)
+    public async Task<int> AddAIInDbAsync(string aiName)
+    {
+        var ai = new User { Name = aiName };
+        await _db.Users.AddAsync(ai);
+        await _db.SaveChangesAsync();
+        return ai.Id;
+    }
+    
+    /// 拿UserId, 无逻辑
+    public async Task< int?> GetUserId(string userName)
+    {
+        var userId = await _db.Users.FirstOrDefaultAsync(x => x.Name == userName);
+        return userId?.Id;
+    }
+
+    /// 首次会话创建
+    public async Task<int> CreateSessionAsync(int memberId)
+    {
+        var session = new Session();
+        await _db.Sessions.AddAsync(session);
+        await _db.SaveChangesAsync();
+        await _db.SessionParticipants.AddRangeAsync(
+            new SessionParticipant { SessionId = session.Id, UserId = memberId, JoinedAt = DateTime.Now }
+        );
+        await _db.SaveChangesAsync();
+        return session.Id;
+    }
+
+
+    /// 添加成员在同一会话
+    public async Task AddUserInSessionParticipantAsync(int memberId, int sessionId)
+    {
+        var s = new SessionParticipant() { UserId = memberId, SessionId = sessionId };
+        await _db.SessionParticipants.AddAsync(s);
+        await _db.SaveChangesAsync();
+    }
+
+
+    /// 保存会话
+    public async Task SaveChatInMessageAsync(int sessionId, int memberId, string memberContent, string? type = "text")
+    {
+        // 新增消息而非修改
+        var messags = new Messages
+        {
+            SessionId = sessionId,
+            UserId = memberId,
+            Content = memberContent,
+            Type = type
+        };
+        await _db.Messages.AddAsync(messags);
+        await _db.SaveChangesAsync();
+    }
+    
+    /// 判断用户名是否存在
+    public async Task<bool> UserExitAsync(string name)
+    {
+        return await _db.Users.AnyAsync(x => x.Name == name);
+    }
+    
+    /// 装饰器, 用户存在就返回Id, 不存在就返回
+    public Func<Func<string, Task<int?>>, Func<string, Task<int?>>> WithExistenceCheck(Func<string, Task<bool>> isExist)
+    {
+        return getId => async name => await isExist(name) ? await getId(name) : (int?)null;
+    }
+    
+    /// 把当前session_id的所有会话拿出来
+    public async Task<List<Messages>> GetChatHistoryAsync(int currentSessionId)
+    {
+        var fi = await _db.Messages.Where(x => x.SessionId == currentSessionId).ToListAsync();
+        return fi;
+    }
+    
+    /// 转换成pyai要的格式
+    public AiPayload MapRoleContent(int sessionId, int userId, string userName, List<Messages> messages)
+    {
+        var result = messages.Select(x => new RoleContent
+        (
+            x.UserId == userId ? "user" : "assistant",
+            x.Content
+        )).ToList();
+        var end = new Dictionary<string, List<RoleContent>>
+        {
+            [userName] = result
+        };
+        return new AiPayload(sessionId, end);
+    }
+}

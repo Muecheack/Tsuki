@@ -1,0 +1,114 @@
+{
+  "login": {
+    "title": "Welcome!",
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "Enter nickname",
+    "nicknameEmpty": "*Nickname is required!",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "passwordEmpty": "*Password is required!",
+    "submit": "Sign in",
+    "noAccount": "No account?",
+    "goRegister": "Sign up!",
+    "success": "Signed in! Welcome {name}!"
+  },
+  "register": {
+    "title": "Create Account",
+    "subtitleBefore": "Meet ",
+    "subtitleAfter": " here!",
+    "nickname": "Nickname",
+    "nicknamePlaceholder": "What's your name?",
+    "nicknameEmpty": "*Nickname is required!",
+    "userExist": "User already exists~",
+    "gender": "Gender",
+    "boy": "♂ Boy",
+    "girl": "♀ Girl",
+    "call": "Address me as",
+    "placeholder": "How old are you~",
+    "olderBrother": "Big Brother",
+    "shota": "Shota",
+    "olderSister": "Big Sister",
+    "loli": "Loli",
+    "callValueNull": "*Haven't told me your age yet~",
+    "apiKey": "API Key",
+    "apiKeyInputPlaceholder": "Enter your API key~",
+    "apiKeyNull": "*API key is required! You can't get in without it~",
+    "submit": "Sign up",
+    "hasAccount": "Have an account?",
+    "backLogin": "Back to sign in~",
+    "success": "Account created! Welcome {name}!"
+  },
+  "keke": {
+    "zoom": "Not done yet...",
+    "pin": "Pin",
+    "remove": "Remove",
+    "moments": "Moments",
+    "addFriend": "Add friend",
+    "requests": "Friend requests",
+    "settings": "Settings",
+    "panelSetting": "Settings",
+    "panelMoments": "Moments",
+    "panelAddFriend": "Who to add?",
+    "panelRequests": "Requests",
+    "empty": "Pick a friend to chat~"
+  },
+  "chat": {
+    "more": "More",
+    "me": "Me",
+    "placeholder": "Say something...",
+    "send": "Send",
+    "fileTag": "[File]",
+    "loading": "Loading..."
+  },
+  "moments": {
+    "placeholderName": "Placeholder",
+    "commentPlaceholder": "Comment...",
+    "me": "Me",
+    "publish": "Post"
+  },
+  "card": {
+    "contactLabel": "Tsuki Contact",
+    "personality": "Personality",
+    "applyFriend": "Add Friend"
+  },
+  "guide": {
+    "official": "I'm the official~",
+    "hello": "Hi~",
+    "intro": "This is an AI Chat product that simulates a real social app~",
+    "contactsAreAI": "So everyone here is an AI (except me, because these words are all pre-written...)",
+    "chat": "You can speak freely with everyone here",
+    "talk": "Like pouring out your heart~",
+    "discuss": "Discussing~",
+    "shareFile": "Sharing files~",
+    "shareImage": "Sharing images~",
+    "moments": "Posting moments~ (you can share updates! It's in the bottom-left)",
+    "noLewd": "❌No lewd stuff~",
+    "noCall": "But no voice calls or phone calls (because I can't...)",
+    "recommend": "Hey hey~ let me introduce someone to you first, go chat with her",
+    "waiting": "She's been waiting for you~",
+    "bye": "I'll leave you two alone then~"
+  },
+  "addFriend": {
+    "searchPlaceholder": "Who to add?",
+    "searching": "Searching...",
+    "detailPlaceholder": "Detail page coming soon...",
+    "back": "← Back to search",
+    "addSuccess": "Friend added successfully~",
+    "alreadyFriend": "You're already friends~",
+    "applyFail": "Something went wrong... friend request failed"
+  },
+  "request": {
+    "empty": "No requests yet..."
+  },
+  "settings": {
+    "language": "Language",
+    "theme": "Theme",
+    "background": "Background",
+    "langPlaceholder": "Default: Simplified Chinese",
+    "themePlaceholder": "Default: Light",
+    "light": "Light",
+    "dark": "Dark",
+    "defaultBg": "Default cat",
+    "footer": "Nothing else to add here..."
+  }
+}

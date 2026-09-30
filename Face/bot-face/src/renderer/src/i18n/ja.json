@@ -1,0 +1,114 @@
+{
+  "login": {
+    "title": "ようこそ!",
+    "nickname": "ニックネーム",
+    "nicknamePlaceholder": "ニックネームを入力",
+    "nicknameEmpty": "*ニックネームを入力してね!",
+    "password": "パスワード",
+    "passwordPlaceholder": "パスワードを入力",
+    "passwordEmpty": "*パスワードを入力してね!",
+    "submit": "ログイン",
+    "noAccount": "アカウントがないなら~",
+    "goRegister": "登録する!",
+    "success": "ログイン成功! ようこそ {name}!"
+  },
+  "register": {
+    "title": "アカウント登録",
+    "subtitleBefore": "これで",
+    "subtitleAfter": "に会えるよ!",
+    "nickname": "ニックネーム",
+    "nicknamePlaceholder": "なんて呼ぶ?",
+    "nicknameEmpty": "*ニックネームが未入力だよ~",
+    "userExist": "ユーザーは既に存在するよ~",
+    "gender": "性別",
+    "boy": "♂男の子",
+    "girl": "♀女の子",
+    "call": "呼び方",
+    "placeholder": "何歳なの~",
+    "olderBrother": "お兄ちゃん",
+    "shota": "ショタ",
+    "olderSister": "お姉ちゃん",
+    "loli": "ロリ",
+    "callValueNull": "*まだ年齢を教えてないよ~",
+    "apiKey": "APIキー",
+    "apiKeyInputPlaceholder": "APIキーを入力して~",
+    "apiKeyNull": "*APIキーが未入力だよ!これがないと入れないよ~",
+    "submit": "登録",
+    "hasAccount": "アカウントある?",
+    "backLogin": "ログインに戻る~",
+    "success": "登録成功! ようこそ {name}!"
+  },
+  "keke": {
+    "zoom": "まだ作ってないよ...",
+    "pin": "ピン留め",
+    "remove": "削除",
+    "moments": "モーメント",
+    "addFriend": "友達を追加",
+    "requests": "友達申請",
+    "settings": "設定",
+    "panelSetting": "設定",
+    "panelMoments": "モーメント",
+    "panelAddFriend": "誰を追加する?",
+    "panelRequests": "申請記録",
+    "empty": "友達を選んでチャットしよう~"
+  },
+  "chat": {
+    "more": "もっと",
+    "me": "私",
+    "placeholder": "なにか話して...",
+    "send": "送信",
+    "fileTag": "[ファイル]",
+    "loading": "読み込み中..."
+  },
+  "moments": {
+    "placeholderName": "プレースホルダー",
+    "commentPlaceholder": "コメントする...",
+    "me": "私",
+    "publish": "投稿"
+  },
+  "card": {
+    "contactLabel": "Tsuki 連絡先",
+    "personality": "性格",
+    "applyFriend": "友達申請"
+  },
+  "guide": {
+    "official": "公式だよ~",
+    "hello": "やあ~",
+    "intro": "これはリアルなSNS風のAIチャット製品だよ~",
+    "contactsAreAI": "ここにいる連絡先はみんなAIなんだ(この子以外はね、だってこの言葉は全部書き込み済みだから...)",
+    "chat": "ここでみんなと思いっきり話せるよ",
+    "talk": "例えば愚痴を聞いてもらったり~",
+    "discuss": "話し合ったり~",
+    "shareFile": "ファイルを共有したり~",
+    "shareImage": "画像を共有したり~",
+    "moments": "モーメントを投稿したりね~(左下から投稿できるよ!)",
+    "noLewd": "❌えっちはダメ~",
+    "noCall": "でも音声通話や電話はできないんだ(できないから...)",
+    "recommend": "ねえねえ~まず誰か紹介するね、彼女と話してみて",
+    "waiting": "彼女、ずっと待ってたんだよ",
+    "bye": "私はもう行くね~"
+  },
+  "addFriend": {
+    "searchPlaceholder": "誰を追加する?",
+    "searching": "検索中...",
+    "detailPlaceholder": "詳細ページは準備中...",
+    "back": "← 検索に戻る",
+    "addSuccess": "友達追加完了~",
+    "alreadyFriend": "もう友達だよ~",
+    "applyFail": "エラーが出ちゃった...申請に失敗したよ"
+  },
+  "request": {
+    "empty": "申請はまだないよ..."
+  },
+  "settings": {
+    "language": "言語",
+    "theme": "テーマ",
+    "background": "背景",
+    "langPlaceholder": "デフォルト: 簡体字中国語",
+    "themePlaceholder": "デフォルト: ライト",
+    "light": "ライト",
+    "dark": "ダーク",
+    "defaultBg": "デフォルト猫",
+    "footer": "他に何もないよ..."
+  }
+}
