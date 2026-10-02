@@ -7,9 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace cs.Controllers;
 
-/// <summary>
 /// 负责认证+转发消息
-/// </summary>
 [ApiController]
 [Route("api/[controller]")] // api/Auth
 public class AuthController : ControllerBase

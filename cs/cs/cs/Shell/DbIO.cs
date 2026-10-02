@@ -22,11 +22,11 @@ public class DbIO
     }
 
     // 返回用户信息的元组 
-    public async Task<(IOState state, int? userId, string? gender, string? callName)> GetUserInfoAsync(string userName)
+    public async Task<(IOState state, int? userId, string? gender, string? callName, string? apiKey)> GetUserInfoAsync(string userName)
     {
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Name == userName);
-        if (user is null) return (IOState.NotFound, null, null, null);
-        return (IOState.Found, user.Id, user.Gender, user.CallName);
+        if (user is null) return (IOState.NotFound, null, null, null, null);
+        return (IOState.Found, user.Id, user.Gender, user.CallName, user.ApiKey);
     }
 
     // 创建会话

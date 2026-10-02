@@ -5,7 +5,7 @@ public static class SwitchFormat
     // 转换成给pyai要的格式
     // 大概长这样:
     // {
-    //  "sessionId": 123,
+    //  "apiKey": xxx,
     //  "userNameDict": {
     //      "张三": {
     //           "aiName": "...",
@@ -18,13 +18,13 @@ public static class SwitchFormat
     //    }
     // }
     public static PrePersonPayload FormatDict(string userName, string aiName, string gender,
-        string callName, List<string> tags, List<IdDescription> avatars)
+        string callName, List<string> tags, List<IdDescription> avatars, string apiKey)
     {
         var userNamePayload = new UserNamePayload(aiName, new List<RoleContent>(), tags, avatars, gender, callName);
         var userNameDict = new Dictionary<string, UserNamePayload>
         {
             [userName] = userNamePayload
         };
-        return new PrePersonPayload(userNameDict);
+        return new PrePersonPayload(apiKey, userNameDict);
     }
 }

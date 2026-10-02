@@ -29,14 +29,14 @@ public class PrePersonController : ControllerBase
 
         try
         {
-            var (state, userId, gender, callName) = await _dbIO.GetUserInfoAsync(userName);
+            var (state, userId, gender, callName, apiKey) = await _dbIO.GetUserInfoAsync(userName);
             if (state == IOState.NotFound)
             {
                 _logger.LogWarning("用户不存在，拒绝预人设 userName={UserName}", userName);
                 return BadRequest(new { code = 400, message = "用户不存在" });
             }
 
-            if (userId is { } uid && gender is { } gen && callName is { } call)
+            if (userId is { } uid && gender is { } gen && callName is { } call && apiKey is { } apiK)
             {
                 var tags = await _dbIO.GetTagsAsync();
                 var avatars = await _dbIO.GetAvatar();
@@ -44,7 +44,7 @@ public class PrePersonController : ControllerBase
                     "已收集上下文 userId={UserId}  tagCount={TagCount} avatarCount={AvatarCount}",
                     uid, tags.Count, avatars.Count);
 
-                var payload = SwitchFormat.FormatDict(userName, aiName, gen, call, tags, avatars);
+                var payload = SwitchFormat.FormatDict(userName, aiName, gen, call, tags, avatars, apiK);
                 var reply = await _httpIO.ToAi(payload, "http://127.0.0.1:10086/api/pre");
                 _logger.LogInformation(
                     "AI 预人设返回 avatarId={AvatarId} selectedTags={SelectedTags}",

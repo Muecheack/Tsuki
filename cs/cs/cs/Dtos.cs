@@ -30,7 +30,7 @@ public record UserNamePayload(
     string gender,
     string callName);
 
-public record PrePersonPayload(Dictionary<string, UserNamePayload> sessionDict);
+public record PrePersonPayload(string apiKey, Dictionary<string, UserNamePayload> sessionDict);
 
 public record IdDescription(int id, string description);
 
