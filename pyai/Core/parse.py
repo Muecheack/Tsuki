@@ -14,17 +14,20 @@ import json
 #     }
 # }
 
+
 # 普通聊天
 def get_info_from_chat(data: dict):
-    sessionId: str  = data.get('sessionId')
-    messages: dict = data.get('messages')
+    api_key: str = data.get("apiKey")
+    sessionId: str = data.get("sessionId")
+    messages: dict = data.get("messages")
     name: str = list(messages.keys())[0]
     session_list: list = messages[name]
-    return (sessionId, name, session_list)
+    return (api_key, sessionId, name, session_list)
 
 
 # 预人设
-def get_info_pre(prop_dict:dict) -> tuple:
+def get_info_pre(prop_dict: dict) -> tuple:
+    api_key: str = prop_dict.get("apiKey")
     session_dict: dict = prop_dict.get("sessionDict") or {}
     user_name: str = list(session_dict.keys())[0]
     user_info: dict = session_dict[user_name]
@@ -34,7 +37,7 @@ def get_info_pre(prop_dict:dict) -> tuple:
     avatars: list = user_info.get("avatars")
     gender: str = user_info.get("gender")
     callName: str = user_info.get("callName")
-    return (user_name, ai_name, session, tags,avatars, gender, callName)
+    return (user_name, ai_name, session, tags, avatars, gender, callName, api_key)
 
 
 # 把prmp塞到历史列表的最前方
@@ -63,3 +66,4 @@ def get_reply_selected(reply_dict: dict) -> tuple:
 # 根据id拿description
 def get_description_by_id(id: int, id_description: list) -> str:
     return next((i["description"] for i in id_description if i["id"] == id), None)
+

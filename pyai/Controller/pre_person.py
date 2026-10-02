@@ -22,7 +22,7 @@ pre_person_bp = Blueprint("pre_person", __name__)
 """
 发来:
 {
-    "sessionId": 123,
+    "apiKey"; xxx,
     "sessionDict": {
         "张三": {
             "aiName": "...",
@@ -62,7 +62,9 @@ def pre_person() -> Response:
         str,
         str,
     ] = parse.get_info_pre(data)
-    user_name, ai_name, session, tags, avatars, gender, call_name = info_from_pre
+    user_name, ai_name, session, tags, avatars, gender, call_name, api_key = (
+        info_from_pre
+    )
     logger.info(
         "解析请求完成: user_name=%s, ai_name=%s, 标签数=%s, 头像数=%s, gender=%s, callName=%s",
         user_name,
@@ -84,7 +86,7 @@ def pre_person() -> Response:
 
     print(f"完整历史消息, 预人设:{pre_all_history}")
 
-    ai_reply: str = ai_service.get_ai_reply(pre_all_history)
+    ai_reply: str = ai_service.get_ai_reply(pre_all_history, api_key)
     logger.info("AI 回复成功: 字符数=%s", len(ai_reply or ""))
     logger.debug("AI 回复内容: %s", ai_reply)
     ai_reply_dict: dict[str, Any] = parse.parse_reply_to_dict(ai_reply)

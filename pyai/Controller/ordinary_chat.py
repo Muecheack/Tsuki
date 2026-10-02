@@ -20,6 +20,7 @@ ordinary_chat_bp = Blueprint("ordinary_chat", __name__)
 """
 常规聊天接收:
 {
+    'apiKey': xxx,
     'sessionId': 4,
     'messages': {
             '测试用户1': [
@@ -43,7 +44,7 @@ def ordinary_chat() -> Response:
     logger.info("收到常规聊天请求: %s %s", request.method, request.path)
     data = request.get_json()
     info_from_chat = parse.get_info_from_chat(data)
-    sessionId, name, session_list = info_from_chat
+    api_key, sessionId, name, session_list = info_from_chat
     logger.info(
         "解析请求完成: sessionId=%s, name=%s, 历史消息条数=%s",
         sessionId,
@@ -65,7 +66,7 @@ def ordinary_chat() -> Response:
     history = parse.insert_prmp_to_session(session_list, prmp)
     logger.info("已拼接提示词与历史, 待发送消息条数=%s", len(history))
     # 未来把类型换成list
-    response: str = ai_service.get_ai_reply(history)
+    response: str = ai_service.get_ai_reply(history, api_key)
     logger.info("AI 回复成功: sessionId=%s, 字符数=%s", sessionId, len(response or ""))
     logger.debug("AI 回复内容: %s", response)
 

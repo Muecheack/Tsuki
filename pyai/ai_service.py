@@ -1,13 +1,16 @@
 import os
 from openai import OpenAI
 
-client = OpenAI(
-    # TODO: 未来这个换成前端传来的api
-    api_key=os.environ.get('DEEPSEEK_API_KEY'),
-    base_url="https://api.deepseek.com")
 
 # TODO: 未来再接收个bool值, 按照bool值选择提示词文件
-def get_ai_reply(session_list: list) -> str:
+def get_ai_reply(session_list: list, api_key: str) -> str:
+
+    client = OpenAI(
+        # TODO: 未来这个换成前端传来的api
+        api_key=api_key,
+        base_url="https://api.deepseek.com",
+    )
+
     response = client.chat.completions.create(
         model="deepseek-v4-pro",
         messages=[
@@ -19,7 +22,7 @@ def get_ai_reply(session_list: list) -> str:
         ],
         stream=False,
         reasoning_effort="high",
-        extra_body={"thinking": {"type": "enabled"}}
+        extra_body={"thinking": {"type": "enabled"}},
     )
 
     # TODO: 未来把回复的分隔符处理掉,拆成列表返回
