@@ -37,6 +37,13 @@ public class DbActions
         var userId = await _db.Users.FirstOrDefaultAsync(x => x.Name == userName);
         return userId?.Id;
     }
+    
+    // 拿key, 再写一遍是图方便, 否则要拆迁
+    public async Task<string> GetApiKeyAsync(string userName)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(x => x.Name == userName);
+        return user.ApiKey;
+    }
 
     /// 首次会话创建
     public async Task<int> CreateSessionAsync(int memberId)
@@ -96,7 +103,7 @@ public class DbActions
     }
     
     /// 转换成pyai要的格式
-    public AiPayload MapRoleContent(int sessionId, int userId, string userName, List<Messages> messages)
+    public AiPayload MapRoleContent(int sessionId, int userId, string userName, List<Messages> messages, string apiKey)
     {
         var result = messages.Select(x => new RoleContent
         (
@@ -107,6 +114,6 @@ public class DbActions
         {
             [userName] = result
         };
-        return new AiPayload(sessionId, end);
+        return new AiPayload(apiKey, sessionId, end);
     }
 }

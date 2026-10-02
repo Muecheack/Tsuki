@@ -11,7 +11,7 @@ public class ChatController : ControllerBase
     /*
          用户发消息就处理用户(service), AI回消息才处理AI(client)
         */
- 
+
     private readonly DbActions _dbAction;
     private readonly SendToAi _sendToAi;
 
@@ -25,7 +25,7 @@ public class ChatController : ControllerBase
     public async Task<IActionResult> Foo([FromBody] UserChatDto chat)
     {
         // 用户发消息就处理用户(service), AI回消息才处理AI(client)
-        
+
         var userName = chat.userName;
         var content = chat.message;
         var type = chat.type;
@@ -34,6 +34,9 @@ public class ChatController : ControllerBase
         // 拿userId
         var safeGetId = _dbAction.WithExistenceCheck(_dbAction.UserExitAsync)(_dbAction.GetUserId);
         var userId = await safeGetId(userName);
+
+        // 拿key
+        var apiKey = await _dbAction.GetApiKeyAsync(userName);
         // 不携带sessionId则创建会话
         if (!chat.sessionId.HasValue)
         {
@@ -49,23 +52,23 @@ public class ChatController : ControllerBase
                     // TODO: 到时候上AI端看一眼真实路径再改
                     var reply = await _sendToAi.SendAiAsync("http://127.0.0.1:10086/api/ai",
                         _dbAction.MapRoleContent(sessionId, uid, userName,
-                            await _dbAction.GetChatHistoryAsync(sessionId)));
+                            await _dbAction.GetChatHistoryAsync(sessionId), apiKey));
                     Console.WriteLine($"收到回复:{reply.message}, ai名字:{reply.aiName}");
                     Console.WriteLine($"用户名字:{userName}");
-                    
+
                     // AI走相同路径(参进SessionParticipant, 存数据库, 返回给前端)
                     // 添加AI进User
                     var aiId = await _dbAction.AddAIInDbAsync(reply.aiName);
                     if (reply.sessionId is { } asid)
                     {
                         // 参进SessionParticipant
-                        await _dbAction.AddUserInSessionParticipantAsync( aiId, asid
+                        await _dbAction.AddUserInSessionParticipantAsync(aiId, asid
                         );
                         // 保存
                         await _dbAction.SaveChatInMessageAsync(asid, aiId,
                             reply.message, reply.type);
                     }
-                    
+
                     return Ok(new
                     {
                         code = 200,
@@ -101,7 +104,7 @@ public class ChatController : ControllerBase
                 // 扔给ai
                 // TODO: 到时候上AI端看一眼真实路径再改
                 var reply = await _sendToAi.SendAiAsync("http://127.0.0.1:10086/api/ai",
-                    _dbAction.MapRoleContent(csid, uid, userName, await _dbAction.GetChatHistoryAsync(csid)));
+                    _dbAction.MapRoleContent(csid, uid, userName, await _dbAction.GetChatHistoryAsync(csid), apiKey));
                 Console.WriteLine($"收到回复:{reply.message}, ai名字:{reply.aiName}");
                 Console.WriteLine($"用户:{userName}");
                 // AI走相同路径(参进SessionParticipant, 存数据库, 返回给前端)

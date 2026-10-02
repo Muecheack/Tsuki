@@ -17,7 +17,7 @@ public record UserChatDto(string userName, int? sessionId, string message, strin
 public record AIChatDto(string aiName, int? sessionId, string message, string type);
 
 // 转发给 AI 端的载荷：带上 sessionId，AI 端回传时才知道往哪个会话存
-public record AiPayload(int sessionId, Dictionary<string, List<RoleContent>> messages);
+public record AiPayload(string apiKey, int sessionId, Dictionary<string, List<RoleContent>> messages);
 
 public record PrePersonDto(string userName, string aiName);
 
