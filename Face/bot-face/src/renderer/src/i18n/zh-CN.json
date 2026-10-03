@@ -59,7 +59,12 @@
     "placeholder": "说点什么...",
     "send": "咻~啪!",
     "fileTag": "[文件]",
-    "loading": "加载中喵..."
+    "loading": "加载中喵...",
+    "sendFail": "出现错误喵...稍后再试喵~",
+    "uploading": "上传中喵...",
+    "uploadFail": "这个文件没发出去喵...",
+    "downloadFail": "下载失败喵...",
+    "viewFileContent": "看看内容喵~"
   },
   "moments": {
     "placeholderName": "占位昵称",

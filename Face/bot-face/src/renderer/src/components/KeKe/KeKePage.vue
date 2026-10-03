@@ -260,7 +260,7 @@ function sessionRowClicked(name: string) {
 }
 
 // 按住把手拖动
-function startResize(e: MouseEvent) {
+function startResize() {
     document.body.style.cursor = 'col-resize';
     document.body.style.userSelect = 'none';
 

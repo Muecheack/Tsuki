@@ -58,7 +58,12 @@
     "placeholder": "なにか話して...",
     "send": "送信",
     "fileTag": "[ファイル]",
-    "loading": "読み込み中..."
+    "loading": "読み込み中...",
+    "sendFail": "エラーが出ちゃった...あとでもう一度ね",
+    "uploading": "アップロード中...",
+    "uploadFail": "このファイルは送れなかったよ...",
+    "downloadFail": "ダウンロードに失敗したよ...",
+    "viewFileContent": "内容を見る"
   },
   "moments": {
     "placeholderName": "プレースホルダー",

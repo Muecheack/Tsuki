@@ -1,5 +1,8 @@
 import axios from 'axios'
 
+// 后端地址统一放这里：以前散落在 4 个函数里写死，改端口/换机器要满文件找
+export const SERVER_BASE_URL = 'http://localhost:5108'
+
 // 后端返回的业务错误（携带 code，便于前端区分"用户已存在"等场景）
 export class ApiError extends Error {
   constructor(
@@ -45,10 +48,27 @@ export interface ApplyFirend {
   sessionId: number
 }
 
+// 上传文件接口返回结构（与后端约定：{ code, message, data: { name, size, url, contentType } }）
+export interface UploadData {
+  // 原始文件名（只用于显示，存盘名是后端生成的 Guid）
+  name: string
+  size: number
+  // 相对路径（如 Resource/Uploads/xxx.txt），和头像一样由前端拼 SERVER_BASE_URL 使用
+  url: string
+  contentType?: string
+}
+
 export type RegisterReply = ApiReply<RegisterData>
 export type ChatReply = ApiReply<ChatData>
 export type PrepersonReply = ApiReply<PrePerson>
 export type ApplyFriendReply = ApiReply<ApplyFirend>
+export type UploadReply = ApiReply<UploadData>
+
+// 后端给的是相对路径，拼成能直接访问/下载的绝对地址（已经是绝对地址就原样返回）
+export function resolveServerUrl(relativePath: string): string {
+  if (/^https?:\/\//i.test(relativePath)) return relativePath
+  return `${SERVER_BASE_URL}/${relativePath.replace(/^\/+/, '')}`
+}
 
 // 前端把名字和人设和头像名给ai发过去
 // 发送注册信息，成功返回 { id, token }（token 是免登录凭证，id 是新用户 Id）
@@ -59,9 +79,8 @@ export async function sendUserInfoAsync(
   call: string,
   apiKey: string
 ): Promise<RegisterReply['data']> {
-  // TODO: 这里加上后端地址
   try {
-    const reply = await axios.post<RegisterReply>('http://localhost:5108/api/Auth/register', {
+    const reply = await axios.post<RegisterReply>(`${SERVER_BASE_URL}/api/Auth/register`, {
       name,
       gender,
       call,
@@ -95,7 +114,7 @@ export async function sendChatMessageAsync(
   // 查本地有没有sessionId
   const sessionId = localStorage.getItem(`sessionId_${aiName}`)
   try {
-    const reply = await axios.post<ChatReply>('http://localhost:5108/api/Chat/chat1', {
+    const reply = await axios.post<ChatReply>(`${SERVER_BASE_URL}/api/Chat/chat1`, {
       userName,
       sessionId: sessionId ? Number(sessionId) : null,
       type,
@@ -130,13 +149,41 @@ export async function sendChatMessageAsync(
   }
 }
 
+// 上传文件（multipart）
+// 后端落盘到 Resource/Uploads，靠 Program.cs 里已挂的静态文件服务对外提供下载，
+// 所以这里只拿相对路径，前端用 resolveServerUrl 拼绝对地址
+export async function uploadFileAsync(file: File): Promise<UploadData> {
+  const form = new FormData()
+  form.append('file', file)
+  try {
+    // 注意：不要手写 Content-Type —— 交给 axios 自己带 multipart 边界，
+    // 手写成 'multipart/form-data' 会丢掉 boundary，后端就解析不出文件了
+    const reply = await axios.post<UploadReply>(`${SERVER_BASE_URL}/api/File/upload`, form, {
+      timeout: 60_000 // 大文件/后端没起时别让界面无限转圈
+    })
+    if (reply.data.code !== 200) {
+      throw new ApiError(reply.data.code, reply.data.message)
+    }
+    return reply.data.data
+  } catch (err) {
+    // HTTP 非 2xx（如 400 文件太大）→ 转成带 code 的 ApiError
+    if (axios.isAxiosError(err)) {
+      const data = err.response?.data as UploadReply | undefined
+      if (data && typeof data.code === 'number') {
+        throw new ApiError(data.code, data.message)
+      }
+    }
+    throw err
+  }
+}
+
 // 预发人设
 // 不出意外这个tags只有guide那次用上, 其它都用不上
 export async function preAiPerson(
   userName: string,
   aiName: string
 ): Promise<[string, string[], string]> {
-  const baseUrl = 'http://localhost:5108'
+  const baseUrl = SERVER_BASE_URL
   try {
     // TODO: 填路径
     const reply = await axios.post<PrepersonReply>(`${baseUrl}/api/PrePerson/preperson1`, {
@@ -177,7 +224,7 @@ export async function applyFriendAsync(
 ) {
   try {
     const responst = await axios.post<ApplyFriendReply>(
-      'http://localhost:5108/api/ApplyFriend/apply',
+      `${SERVER_BASE_URL}/api/ApplyFriend/apply`,
       {
         tags,
         avatarUrl,
