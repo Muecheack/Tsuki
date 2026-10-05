@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import nekoHead from '@/assets/avator/neko_head.png'
+import twohiregird from '@/assets/avator/twohiregird.jpg'
 
 // 官方账号的稳定标识（不随语言变：会话查找 / sessionId key / 判断都用它）
 // 显示名走 nameKey → 渲染时 t() 翻译，切语言实时跟随（只有官方有 nameKey，其它好友不译）
@@ -16,17 +17,6 @@ const LOCAL_FRIEND = 'local_friend'
 // 官方未读数的本地缓存 key：官方好友本身不入库，但它「读过没读过」的状态要持久化
 const LOCAL_UNREAD_OFFICIAL = 'local_unread_official'
 
-// 文件消息的附件信息（type === 'file' 时才有）
-// url 是后端的相对路径（Resource/Uploads/xxx），渲染/下载时用 resolveServerUrl 拼成绝对地址
-export interface IFileAttachment {
-  name: string
-  size: number
-  url: string
-  // 前端截断后的文本预览：气泡里可展开核对，也是唯一会进 AI 上下文的内容
-  preview?: string
-  contentType?: string
-}
-
 // 一条消息：谁发的 + 内容
 export interface IMessage {
   sender: string // 'user' = 自己；其它 = 对方名字
@@ -35,8 +25,6 @@ export interface IMessage {
   // i18nKey：消息内容走语言包（写死的引导/前言消息用）。
   // 有 i18nKey 时优先用它渲染（t(i18nKey)），切语言自动跟随；text 作为普通动态消息的兜底
   i18nKey?: string
-  // 文件附件：text 只留一句 "[文件] 名字" 给侧栏预览用，文件名/大小/地址/预览都在这里
-  file?: IFileAttachment
 }
 
 // 好友部分
@@ -234,17 +222,15 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   // 给某个好友追加消息
-  // file：type === 'file' 时传附件信息（文件名/大小/下载地址/截断预览），其它类型不用传
   function addChatList(
     parentName: string,
     sender: string,
     text: string,
-    type: 'text' | 'card' | 'file' = 'text',
-    file?: IFileAttachment
+    type: 'text' | 'card' | 'file' = 'text'
   ) {
     const target = friends.value.find((x) => x.name === parentName)
     if (target) {
-      target.message.push(file ? { sender, text, type, file } : { sender, text, type })
+      target.message.push({ sender, text, type })
       // 未读只算「对方发来的、且用户没在看的」新消息：
       // 自己发的（sender === 'user'）不算；用户正打开这个会话（activeChat）也不算
       if (sender !== 'user' && parentName !== activeChat.value) target.unread++

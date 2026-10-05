@@ -1,4 +1,4 @@
-using cs.Repo;
+﻿using cs.Repo;
 using Microsoft.EntityFrameworkCore;
 
 namespace cs.DbAction;
@@ -102,42 +102,13 @@ public class DbActions
         return fi;
     }
     
-    /// 库里存的东西 → 模型能读的人话
-    /// 文件消息(Type=file)的 Content 是一段 JSON, 直接塞给模型全是引号括号噪音,
-    /// 这里把它拆成人话: 只有前端截断好的 preview 会进上下文, 文件本体永远不进
-    private static string ToAiReadableContent(Messages message)
-    {
-        var content = message.Content ?? string.Empty;
-        if (message.Type != "file") return content;
-
-        try
-        {
-            var file = System.Text.Json.JsonSerializer.Deserialize<FileMessageDto>(content, FileJsonOptions);
-            // 解不出文件名(老数据/被手改成普通文本)就当普通文本处理
-            if (file is null || string.IsNullOrWhiteSpace(file.name)) return content;
-
-            var head = $"[用户发来文件] {file.name}（{file.size} 字节）";
-            if (!string.IsNullOrWhiteSpace(file.url)) head += $"，下载地址：{file.url}";
-            return string.IsNullOrWhiteSpace(file.preview) ? head : $"{head}\n文件内容如下：\n{file.preview}";
-        }
-        catch (System.Text.Json.JsonException)
-        {
-            // 不是 JSON, 原样返回, 至少别把整条链路 500 掉
-            return content;
-        }
-    }
-
-    // 前端发来的是 camelCase(name/size/url/preview), C# record 的属性是 PascalCase, 得忽略大小写
-    private static readonly System.Text.Json.JsonSerializerOptions FileJsonOptions =
-        new() { PropertyNameCaseInsensitive = true };
-
     /// 转换成pyai要的格式
     public AiPayload MapRoleContent(int sessionId, int userId, string userName, List<Messages> messages, string apiKey)
     {
         var result = messages.Select(x => new RoleContent
         (
             x.UserId == userId ? "user" : "assistant",
-            ToAiReadableContent(x)
+            x.Content
         )).ToList();
         var end = new Dictionary<string, List<RoleContent>>
         {

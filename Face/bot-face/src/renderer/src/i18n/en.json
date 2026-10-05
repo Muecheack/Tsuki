@@ -58,12 +58,7 @@
     "placeholder": "Say something...",
     "send": "Send",
     "fileTag": "[File]",
-    "loading": "Loading...",
-    "sendFail": "Something went wrong... try again later",
-    "uploading": "Uploading...",
-    "uploadFail": "This file didn't go through...",
-    "downloadFail": "Download failed...",
-    "viewFileContent": "View content"
+    "loading": "Loading..."
   },
   "moments": {
     "placeholderName": "Placeholder",

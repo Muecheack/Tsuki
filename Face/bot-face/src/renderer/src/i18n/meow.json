@@ -58,12 +58,7 @@
     "placeholder": "输入文本",
     "send": "发送",
     "fileTag": "[文件]",
-    "loading": "",
-    "sendFail": "发送失败，请稍后再试",
-    "uploading": "上传中...",
-    "uploadFail": "文件发送失败",
-    "downloadFail": "下载失败",
-    "viewFileContent": "查看内容"
+    "loading": ""
   },
   "moments": {
     "placeholderName": "占位昵称",

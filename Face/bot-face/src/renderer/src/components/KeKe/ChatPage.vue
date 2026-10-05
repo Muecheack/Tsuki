@@ -7,9 +7,7 @@ import { t } from '@/i18n';
 import CardMessage from './CardMessage.vue';
 import CardMessageClicked from './CardMessageClicked.vue';
 import nekoHead from '@/assets/avator/neko_head.png';
-import { sendChatMessageAsync, uploadFileAsync } from "../../../../server/api/http"
-import { formatFileSize, readTextPreview, TEXT_FILE_ACCEPT } from '@/utils/file';
-import FileMessage from './FileMessage.vue';
+import { sendChatMessageAsync } from "../../../../server/api/http"
 
 const chat = useChatStore();
 const user = JSON.parse(localStorage.getItem('bot-face-user') || '{}');
@@ -79,89 +77,46 @@ function onEmoji(val: string) {
 }
 
 // 待发送的文件（显示在输入框上方）
-// 注：这里必须留住 File 本体 —— 之前只存了 name/size 两个字符串，File 在 input 清空后就丢了，
-// 所以"发送文件"永远只能往消息列表塞一句文本占位，根本没发出去
-interface IPendingFile {
-    id: number;
-    file: File;
-    name: string;
-    size: string;
-    state: 'waiting' | 'sending' | 'failed';
-}
-const pendingFiles = ref<IPendingFile[]>([]);
-let pendingFileId = 0;
-
-// 待发卡片上那行小字：上传中 / 失败原因 / 正常时显示体积
-function pendingHint(f: IPendingFile): string {
-    if (f.state === 'sending') return t('chat.uploading');
-    if (f.state === 'failed') return t('chat.uploadFail');
-    return f.size;
-}
+const pendingFiles = ref<{ name: string; size: string }[]>([]);
 
 // 发送：文字 + 文件一起进消息列表（都是 user 发的）
-// 文字走 text；文件先真上传（POST /api/File/upload）拿到下载地址，再以 type='file' 发出去 ——
-// 后端把 Content 存成 JSON，并把这里截断好的 preview 翻成人话喂给 AI（见 cs 的 MapRoleContent）
 async function sendMessage() {
     const content = draft.value.trim();
-    // 快照待发列表：下面的 await 期间用户还能继续往里加文件，不该被这一次发送带走
-    const queue = pendingFiles.value.slice();
+    const files = pendingFiles.value;
+    // 清空
     draft.value = '';
-    if (!content && queue.length === 0) return;
-
-    // 发请求前记下这次要发去哪个会话：等待期间用户切了好友，回复也得落回原来那个会话
-    const targetName = prop.name;
-
+    pendingFiles.value = [];
+    if (!content && files.length === 0) return;
     // 发送文字
     if (content) {
-        chat.addChatList(targetName, 'user', content);
-        // 注：消息落盘由 store 里 watch(friends, { deep: true }) 统一负责（addChatList 一追加就写回）
+        chat.addChatList(prop.name, 'user', content);
+        // 注：消息落盘由 store 里 watch(friends, { deep: true }) 统一负责（addChatList 一追加就写回），
+        // 发请求前记下这次要发去哪个会话：等待期间用户切了好友，回复也得落回原来那个会话
+        const targetName = prop.name
         try {
             const { replyMessage } = await sendChatMessageAsync(targetName, userName, content)
-            chat.addChatList(targetName, targetName, replyMessage ?? t('chat.sendFail'));
+            chat.addChatList(targetName, targetName, replyMessage ?? '出现错误，请稍后再试');
         } catch (err) {
             console.error('发送消息失败:', err);
-            chat.addChatList(targetName, targetName, t('chat.sendFail'));
+            chat.addChatList(targetName, targetName, '出现错误，请稍后再试');
         }
     }
-
-    // 发送文件：一个一个来 —— 每发一条后端都会回一条 AI 消息，并发发出去回复顺序会乱
-    for (const item of queue) {
-        item.state = 'sending';
-        try {
-            const uploaded = await uploadFileAsync(item.file);
-            // 文本类文件读一份截断预览：它既显示在气泡里，也是唯一会进 AI 上下文的内容
-            const preview = await readTextPreview(item.file);
-            const payload = JSON.stringify({
-                name: uploaded.name,
-                size: uploaded.size,
-                url: uploaded.url,
-                preview
-            });
-            chat.addChatList(targetName, 'user', `${t('chat.fileTag')} ${uploaded.name}`, 'file', {
-                ...uploaded,
-                preview
-            });
-            const { replyMessage } = await sendChatMessageAsync(targetName, userName, payload, 'file');
-            chat.addChatList(targetName, targetName, replyMessage ?? t('chat.sendFail'));
-            // 成功才从待发列表移除；失败的留在列表里标红，下次点发送会重试
-            pendingFiles.value = pendingFiles.value.filter(f => f.id !== item.id);
-        } catch (err) {
-            console.error('发送文件失败:', err);
-            item.state = 'failed';
-        }
-    }
+    // 发送文件（显示成 [文件] 文件名）
+    files.forEach(f => {
+        chat.addChatList(prop.name, 'user', `${t('chat.fileTag')} ${f.name} (${f.size})`);
+    });
 }
 
-// 资源管理器这一块：选文件 → 存进待发送列表（multiple，一次能选多个）
+// 资源管理器这一块：选文件 → 存进待发送列表
 function onFileSelect(e: Event) {
     const input = e.target as HTMLInputElement;
-    for (const file of Array.from(input.files ?? [])) {
+    const file = input.files?.[0];
+    if (file) {
         pendingFiles.value.push({
-            id: ++pendingFileId,
-            file,
             name: file.name,
-            size: formatFileSize(file.size),
-            state: 'waiting'
+            size: file.size > 1024 * 1024
+                ? (file.size / 1024 / 1024).toFixed(1) + ' MB'
+                : (file.size / 1024).toFixed(1) + ' KB'
         });
     }
     input.value = '';
@@ -252,9 +207,6 @@ watch(
                         <CardMessage :name="msg.sender" :avator="cardAvator" />
                     </div>
 
-                    <!-- 文件消息：库里存的是 JSON，气泡里渲染成文件卡片（可下载 + 可展开截断预览） -->
-                    <FileMessage v-else-if="msg.file" :file="msg.file" />
-
                     <!-- 文本消息（有 i18nKey 走语言包，切语言跟随；普通消息走 text；老消息无 type 也走这里） -->
                     <div v-else
                         class="border-white/20 bg-white/90 backdrop-blur-2xl shadow-2xl  border w-fit rounded-sm px-1 py-0.5">
@@ -264,21 +216,18 @@ watch(
             </TransitionGroup>
         </div>
 
-        <!-- 待发送文件卡片区：上传中转圈，失败标红（失败项留在列表里，再点发送即重试） -->
+        <!-- 待发送文件卡片区 -->
         <div v-if="pendingFiles.length" class="flex flex-col gap-2 px-6 pt-2 border-t border-gray-200/80">
-            <div v-for="(f, idx) in pendingFiles" :key="f.id"
+            <div v-for="(f, idx) in pendingFiles" :key="idx"
                 class="flex items-center justify-between bg-white/60 backdrop-blur-sm border border-white/30 rounded-sm px-3 py-2">
-                <div class="flex items-center gap-2 min-w-0">
-                    <fv-progress-ring v-if="f.state === 'sending'" :legacy="true" class="shrink-0" />
-                    <fv-icon-element v-else value="Document" :font-size="16" class="shrink-0" />
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-sm text-gray-800 truncate">{{ f.name }}</span>
-                        <span class="text-xs" :class="f.state === 'failed' ? 'text-red-400' : 'text-gray-400'">
-                            {{ pendingHint(f) }}
-                        </span>
+                <div class="flex items-center gap-2">
+                    <fv-icon-element value="Document" :font-size="16" />
+                    <div class="flex flex-col">
+                        <span class="text-sm text-gray-800">{{ f.name }}</span>
+                        <span class="text-xs text-gray-400">{{ f.size }}</span>
                     </div>
                 </div>
-                <fv-icon-element value="Cancel" :font-size="14" class="cursor-pointer hover:opacity-50 shrink-0"
+                <fv-icon-element value="Cancel" :font-size="14" class="cursor-pointer hover:opacity-50"
                     @click="removeFile(idx)" />
             </div>
         </div>
@@ -304,9 +253,15 @@ watch(
                     @click="fileInput?.click()" />
             </div>
 
-            <!-- 文件资源管理器：扩展名白名单集中在 utils/file.ts，multiple 支持一次选多个 -->
-            <input type="file" ref="fileInput" class="hidden" multiple :accept="TEXT_FILE_ACCEPT"
-                @change="onFileSelect" />
+            <!-- 文件资源管理器-->
+            <input type="file" ref="fileInput" class="hidden" @change="onFileSelect" accept="
+                .txt,.text,text/plain,
+                .cs,.java,.js,.ts,.py,.cpp,.c,.h,.php,.rb,.go,.rs,.swift,.kt,.dart,.scala,.pl,.lua,.r,.m,.sql,.sh,.bash,.ps1,
+                .html,.htm,.css,.scss,.sass,.less,.vue,.jsx,.tsx,.json,.xml,.svg,
+                .json,.xml,.yaml,.yml,.toml,.ini,.cfg,.conf,.config,.properties,.env,.gitignore,.dockerignore,.npmrc,.babelrc,.eslintrc,.prettierrc,
+                .md,.markdown,.rst,.adoc,.asciidoc,.tex,.latex,
+                .log,.csv,.tsv,.dat,.out
+            " />
         </div>
 
         <!-- ClickedCard -->

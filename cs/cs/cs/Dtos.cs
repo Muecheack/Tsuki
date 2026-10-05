@@ -1,4 +1,4 @@
-namespace cs;
+﻿namespace cs;
 
 // 注册页那堆属性
 public record UserDto(
@@ -41,7 +41,3 @@ public record SelectedDto(List<string> tags, int avatarId);
 
 // 点击好友申请的dto
 public record ApplyFriendDto(List<string> tags, string avatarUrl, string preReply, string userName, string aiName);
-
-// Messages.Type == "file" 时, Messages.Content 里存的 JSON(前端上传成功后发过来)
-// preview 是前端已经截断好的文本预览 —— 只有它会被拼进 AI 上下文, 文件本体永远不进
-public record FileMessageDto(string? name, long size, string? url, string? preview);
