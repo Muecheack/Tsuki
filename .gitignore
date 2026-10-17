@@ -1,0 +1,135 @@
+# ============================================================================
+# Tsuki 项目 .gitignore
+# 覆盖四个子项目：cs (ASP.NET Core) / Face/bot-face (Electron+Vue) /
+#                pyai (Flask) / Wpf-end (WPF) 以及根目录杂项
+#
+# 注意：本文件只阻止「未跟踪」的文件进仓库。
+#       已经被提交的文件不会因为写进 .gitignore 而自动移出，
+#       需要额外执行 git rm -r --cached <路径>。
+#       当前仓库里仍有大量历史遗留的已跟踪产物（node_modules 2214 个、
+#       cs/cs/cs/bin 189 个、cs/cs/cs/obj 33 个、pyai/__pycache__ 11 个），
+#       本文件不会自动处理它们。
+# ============================================================================
+
+# ────────────────────────────── 通用 ──────────────────────────────
+# 操作系统垃圾文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# 编辑器 / IDE 本地状态（.idea 下 workspace.xml、vcs.xml 等不进仓库）
+.idea/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# VS Code：忽略个人配置，但保留团队共享配置
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+
+# 日志与临时文件
+*.log
+logs/
+.cache/
+*.tmp
+*.temp
+*.bak
+*.orig
+
+# 环境变量（apiKey、连接串等敏感信息）
+.env
+.env.*
+!.env.example
+
+# 归档产物
+*.zip
+*.7z
+*.rar
+*.tar
+*.gz
+
+
+# ────────────────────── .NET / C#（cs 与 Wpf-end）──────────────────
+# 编译产物：按项目根锚定，避免误伤 node_modules 里名为 bin 的目录
+/cs/cs/cs/bin/
+/cs/cs/cs/obj/
+/Wpf-end/BotFace/BotFace/bin/
+/Wpf-end/BotFace/BotFace/obj/
+
+# 项目级本地文件
+*.csproj.user
+*.vbproj.user
+*.slnx.user
+*.DotSettings
+
+# NuGet 还原产物
+packages/
+*.nupkg
+*.snupkg
+project.assets.json
+project.nuget.cache
+**/obj/*.nuget.g.props
+**/obj/*.nuget.g.targets
+
+
+# ──────────────── Node / Electron / Vue（Face/bot-face）────────────
+node_modules/
+dist/
+out/
+.electron-vite/
+.eslintcache
+*.tsbuildinfo
+
+# electron-builder 的 build/ 里放的是图标、授权 plist 等【源资源】，
+# 不能整体忽略（Icon.ico / Icon.icns / entitlements.mac.plist 都要入库）
+!/Face/bot-face/build/
+
+# 注：Face/bot-face/.gitignore 里有同类规则，两处并存不冲突
+
+
+# ─────────────────────── Python（pyai）───────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 虚拟环境
+.venv/
+venv/
+env/
+ENV/
+
+# 测试 / 类型检查缓存
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+*.egg-info/
+.eggs/
+
+
+# ───────────── 本项目特有：运行期生成物与临时文件 ─────────────
+# pyai 的提示词文件是运行时按请求生成、每次覆盖重写的中间产物
+# （由 Shell/file_IO.py 的 to_promp_file_pre / to_promp_file_normal 写出）。
+# 目前它们是入库的，如果你想改成不入库，取消下面两行的注释并执行
+#   git rm -r --cached pyai/prmp
+# /pyai/prmp/prmp_chat.txt
+# /pyai/prmp/prmp_pre.txt
+
+# 根目录临时草稿 / 测试文件
+/测试文件.txt
+
+# 已移出仓库的两个前端目录：留在磁盘上，但不让它们再进索引
+/Wpf-end/
+/ts-py-workspace/
