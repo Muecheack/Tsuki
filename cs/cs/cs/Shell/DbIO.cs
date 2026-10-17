@@ -1,4 +1,4 @@
-﻿using cs.Repo;
+using cs.Repo;
 using Microsoft.EntityFrameworkCore;
 
 namespace cs.Shell;
@@ -36,7 +36,7 @@ public class DbIO
         await _db.Sessions.AddAsync(session);
         await _db.SaveChangesAsync();
         await _db.SessionParticipants.AddRangeAsync(new SessionParticipant
-            { SessionId = session.Id, UserId = memberId, JoinedAt = DateTime.Now });
+        { SessionId = session.Id, UserId = memberId, JoinedAt = DateTime.Now });
         await _db.SaveChangesAsync();
         return session.Id;
     }
@@ -45,7 +45,7 @@ public class DbIO
     public async Task JoinSessionAsync(int sessionId, int memberId)
     {
         await _db.SessionParticipants.AddAsync(new SessionParticipant
-            { SessionId = sessionId, UserId = memberId, JoinedAt = DateTime.Now });
+        { SessionId = sessionId, UserId = memberId, JoinedAt = DateTime.Now });
         await _db.SaveChangesAsync();
     }
 
@@ -77,7 +77,7 @@ public class DbIO
     {
         return _db.Users.AnyAsync(x => x.Name == aiName);
     }
-    
+
     // 存Tag
     public async Task<IOState> SaveTagAsync(List<string> tags, int aiId)
     {
@@ -87,36 +87,55 @@ public class DbIO
             .Where(x => tags.Contains(x.TagName))
             .Select(x => x.Id)
             .ToListAsync();
-        
+        if (tagId.Count == 0) return IOState.Found;
+
         var tagRepetition = await _db.TagsUser
             .Where(x => x.UserId == aiId && tagId.Contains(x.TagsId))
             .Select(x => x.TagsId)
             .ToListAsync();
 
-        if (tagRepetition.Count == 0) return IOState.Found;
-        
+        // 只补写还没存过的; 全都存过了就直接返回(以前这里写反了: 一条重复都没有时反而 return, 导致 tag 从来没写进去)
         var add = tagId.Except(tagRepetition)
             .Select(x => new TagsUser { UserId = aiId, TagsId = x })
             .ToList();
-        
+        if (add.Count == 0) return IOState.Found;
+
         await _db.TagsUser.AddRangeAsync(add);
         await _db.SaveChangesAsync();
         return IOState.Found;
     }
-    
+
     // 存avatar-url
+    // 坑: 前端传的是拼了 baseUrl 的绝对地址(http://localhost:5108/Resource/Avatar/x.jpg),
+    // 库里存的是相对路径(Resource/Avatar/x.jpg), 直接全等比较永远匹配不上 —— 所以这里先归一化再比
     public async Task<IOState> SaveAvatarAsync(string avatarUrl, int aiId)
     {
-        var avatar = await _db.AvatarUrls.FirstOrDefaultAsync(x => x.Url == avatarUrl);
-        if (avatar is null) return IOState.NotFound;
-        var avatarId = avatar.Id;
+        if (string.IsNullOrWhiteSpace(avatarUrl)) return IOState.NotFound;
+
         var ai = await _db.Users.FirstOrDefaultAsync(x => x.Id == aiId);
         if (ai is null) return IOState.NotFound;
-        ai.AvatarUrlId = avatarId; // 覆盖, 管他原本有没有值
-        await  _db.SaveChangesAsync();
+
+        var rel = NormalizeStaticPath(avatarUrl);
+        var fileName = Path.GetFileNameWithoutExtension(rel);
+
+        var avatar = await _db.AvatarUrls.FirstOrDefaultAsync(x => x.Url == rel)
+                     ?? await _db.AvatarUrls.FirstOrDefaultAsync(x => x.Url == "/" + rel)
+                     ?? await _db.AvatarUrls.FirstOrDefaultAsync(x => x.Name == fileName);
+        if (avatar is null) return IOState.NotFound;
+
+        ai.AvatarUrlId = avatar.Id; // 覆盖, 管他原本有没有值
+        await _db.SaveChangesAsync();
         return IOState.Found;
     }
-    
+
+    /// 把 http://host/Resource/Avatar/x.jpg / Resource/Avatar/x.jpg / /Resource/... 统一成不带前导斜杠的相对路径
+    private static string NormalizeStaticPath(string url)
+    {
+        var path = url.Trim();
+        if (Uri.TryCreate(path, UriKind.Absolute, out var uri)) path = uri.AbsolutePath;
+        return path.Replace('\\', '/').TrimStart('/');
+    }
+
     // 名字 -> Id
     public async Task<(IOState, int?)> GetUserIdAsync(string memberName)
     {
@@ -126,7 +145,7 @@ public class DbIO
             .FirstOrDefaultAsync();
         return member is null ? (IOState.NotFound, null) : (IOState.Found, member);
     }
-    
+
     // 保存消息
     public async Task SaveChatInMessageAsync(int sessionId, int memberId, string memberContent, string type = "text")
     {

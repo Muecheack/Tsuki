@@ -1,4 +1,4 @@
-﻿namespace cs;
+namespace cs;
 
 // 注册页那堆属性
 public record UserDto(
@@ -17,7 +17,7 @@ public record UserChatDto(string userName, int? sessionId, string message, strin
 public record AIChatDto(string aiName, int? sessionId, string message, string type);
 
 // 转发给 AI 端的载荷：带上 sessionId，AI 端回传时才知道往哪个会话存
-public record AiPayload(string apiKey, int sessionId, Dictionary<string, List<RoleContent>> messages);
+public record AiPayload(string apiKey, int sessionId, AiInfo persona, Dictionary<string, List<RoleContent>> messages);
 
 public record PrePersonDto(string userName, string aiName);
 
@@ -31,6 +31,9 @@ public record UserNamePayload(
     string callName);
 
 public record PrePersonPayload(string apiKey, Dictionary<string, UserNamePayload> sessionDict);
+
+// AI 人设：键名必须和 pyai/Core/parse.py 里 persona.get("xxx") 严格一致, 拼错一个字母那边就是 None
+public record AiInfo(string aiName, string description, string userCallName, string userGender, List<string> tags);
 
 public record IdDescription(int id, string description);
 

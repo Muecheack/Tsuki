@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace cs.Repo;
@@ -25,7 +25,7 @@ public partial class User
     
     public virtual List<SessionParticipant> SessionParticipants { get; set; } = new();
     
-    /// 一个用户一个头像
+    /// 一个用户一个头像；AI 建的时候没头像，所以这里必须是可空的
     public int? AvatarUrlId { get; set; }
-    public virtual AvatarUrl AvatarUrl { get; set; } = null!;
+    public virtual AvatarUrl? AvatarUrl { get; set; }
 }

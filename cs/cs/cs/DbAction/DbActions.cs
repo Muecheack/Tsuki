@@ -1,4 +1,4 @@
-﻿using cs.Repo;
+using cs.Repo;
 using Microsoft.EntityFrameworkCore;
 
 namespace cs.DbAction;
@@ -37,6 +37,19 @@ public class DbActions
         var userId = await _db.Users.FirstOrDefaultAsync(x => x.Name == userName);
         return userId?.Id;
     }
+
+    /// 按名字找 AI 的 Id, 有头像(=建的时候带人设)的优先
+    /// 老数据里同一个 AI 名字底下堆过好几条空壳用户, 直接 FirstOrDefault 可能抓到没头像的那条
+    /// excludeUserId: 排除真人自己(历史数据里有 AI 被存成用户名的情况, 别把真人的 id 当成 AI)
+    public async Task<int?> GetAiIdByNameAsync(string aiName, int excludeUserId)
+    {
+        return await _db.Users
+            .Where(x => x.Name == aiName && x.Id != excludeUserId)
+            .OrderByDescending(x => x.AvatarUrlId ?? 0) // 头像 id 都从 1 开始, null 排最后
+            .ThenBy(x => x.Id)
+            .Select(x => (int?)x.Id)
+            .FirstOrDefaultAsync();
+    }
     
     // 拿key, 再写一遍是图方便, 否则要拆迁
     public async Task<string> GetApiKeyAsync(string userName)
@@ -65,6 +78,32 @@ public class DbActions
         var s = new SessionParticipant() { UserId = memberId, SessionId = sessionId };
         await _db.SessionParticipants.AddAsync(s);
         await _db.SaveChangesAsync();
+    }
+
+    /// 找这个会话里"那位 AI"完整信息: 优先挑有头像(=建的时候带人设)的, 再按 id 稳定排序
+    /// 之所以不用 pyai 回来的 aiName 定身份: 它回的是会话字典的 key(用户名), 拿它建用户会造同名空壳
+    private async Task<User?> GetAiOfSessionAsync(int sessionId, int userId)
+    {
+        var aiIds = await _db.SessionParticipants
+            .Where(x => x.SessionId == sessionId && x.UserId != userId)
+            .Select(x => x.UserId)
+            .Distinct()
+            .ToListAsync();
+        if (aiIds.Count == 0) return null;
+
+        var ais = await _db.Users
+            .Include(x => x.AvatarUrl)
+            .Where(x => aiIds.Contains(x.Id))
+            .ToListAsync();
+
+        return ais.FirstOrDefault(x => x.AvatarUrlId is not null) ?? ais.OrderBy(x => x.Id).FirstOrDefault();
+    }
+
+    /// 这个会话里那位 AI 的 id(没有 AI 参与者就返回 null)
+    public async Task<int?> GetAiIdInSessionAsync(int sessionId, int userId)
+    {
+        var ai = await GetAiOfSessionAsync(sessionId, userId);
+        return ai?.Id;
     }
 
 
@@ -102,8 +141,37 @@ public class DbActions
         return fi;
     }
     
+    // 跟据sessionId把当前AI的name, tags, avatar描述拿出来
+    private async Task<AiInfo> GetInfoOfCurrAi(int sessionId, int userId)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        var ai = await GetAiOfSessionAsync(sessionId, userId);
+
+        if (ai is null)
+        {
+            // 会话里压根没有 AI: 给个空人设, 因为 pyai 端是直接 persona.get(...), 给 null 会在那边崩
+            Console.WriteLine($"[warn] session {sessionId} 里没找到 AI 参与者, 回退空人设");
+            return new AiInfo(
+                string.Empty, string.Empty,
+                user?.CallName ?? string.Empty, user?.Gender ?? string.Empty,
+                new List<string>());
+        }
+
+        var tags = await _db.TagsUser
+            .Where(x => x.UserId == ai.Id)
+            .Select(x => x.Tags.TagName)
+            .ToListAsync();
+
+        return new AiInfo(
+            ai.Name ?? string.Empty,
+            ai.AvatarUrl?.Description ?? string.Empty, // 以前这里直接 .Description, AI 没头像就空引用
+            user?.CallName ?? string.Empty,
+            user?.Gender ?? string.Empty,
+            tags);
+    }
+
     /// 转换成pyai要的格式
-    public AiPayload MapRoleContent(int sessionId, int userId, string userName, List<Messages> messages, string apiKey)
+    public async Task<AiPayload> MapRoleContent(int sessionId, int userId, string userName, List<Messages> messages, string apiKey)
     {
         var result = messages.Select(x => new RoleContent
         (
@@ -114,6 +182,7 @@ public class DbActions
         {
             [userName] = result
         };
-        return new AiPayload(apiKey, sessionId, end);
+        var aiInfo = await GetInfoOfCurrAi(sessionId, userId);
+        return new AiPayload(apiKey, sessionId, aiInfo, end);
     }
 }

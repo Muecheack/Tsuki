@@ -1,4 +1,4 @@
-﻿using cs.DbAction;
+using cs.DbAction;
 using cs.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +8,6 @@ namespace cs.Controllers;
 [Route("api/[controller]")] // api/Chat
 public class ChatController : ControllerBase
 {
-    /*
-         用户发消息就处理用户(service), AI回消息才处理AI(client)
-        */
-
     private readonly DbActions _dbAction;
     private readonly SendToAi _sendToAi;
 
@@ -50,21 +46,18 @@ public class ChatController : ControllerBase
                     await _dbAction.SaveChatInMessageAsync(sessionId, uid, content, type);
                     // 扔给ai
                     // TODO: 到时候上AI端看一眼真实路径再改
-                    var reply = await _sendToAi.SendAiAsync("http://127.0.0.1:10086/api/ai",
-                        _dbAction.MapRoleContent(sessionId, uid, userName,
-                            await _dbAction.GetChatHistoryAsync(sessionId), apiKey));
+                    string aiUrl = "http://127.0.0.1:10086/api/ai";
+                    var history = await _dbAction.GetChatHistoryAsync(sessionId);
+                    var payload = await _dbAction.MapRoleContent(sessionId, uid, userName, history, apiKey);
+                    var reply   = await _sendToAi.SendAiAsync(aiUrl, payload);
+                    
                     Console.WriteLine($"收到回复:{reply.message}, ai名字:{reply.aiName}");
                     Console.WriteLine($"用户名字:{userName}");
 
-                    // AI走相同路径(参进SessionParticipant, 存数据库, 返回给前端)
-                    // 添加AI进User
-                    var aiId = await _dbAction.AddAIInDbAsync(reply.aiName);
+                    // AI走相同路径(存数据库, 返回给前端)
                     if (reply.sessionId is { } asid)
                     {
-                        // 参进SessionParticipant
-                        await _dbAction.AddUserInSessionParticipantAsync(aiId, asid
-                        );
-                        // 保存
+                        var aiId = await ResolveAiIdAsync(reply.aiName, asid, uid);
                         await _dbAction.SaveChatInMessageAsync(asid, aiId,
                             reply.message, reply.type);
                     }
@@ -102,18 +95,15 @@ public class ChatController : ControllerBase
                 // 保存消息
                 await _dbAction.SaveChatInMessageAsync(csid, uid, content, type);
                 // 扔给ai
-                // TODO: 到时候上AI端看一眼真实路径再改
-                var reply = await _sendToAi.SendAiAsync("http://127.0.0.1:10086/api/ai",
-                    _dbAction.MapRoleContent(csid, uid, userName, await _dbAction.GetChatHistoryAsync(csid), apiKey));
+                string aiUrl = "http://127.0.0.1:10086/api/ai";
+                var history = await _dbAction.GetChatHistoryAsync(csid);
+                var payload = await _dbAction.MapRoleContent(csid, uid, userName, history, apiKey);
+                var reply   = await _sendToAi.SendAiAsync(aiUrl, payload);
+                
                 Console.WriteLine($"收到回复:{reply.message}, ai名字:{reply.aiName}");
                 Console.WriteLine($"用户:{userName}");
-                // AI走相同路径(参进SessionParticipant, 存数据库, 返回给前端)
-                // 添加AI进User
-                var aiId = await _dbAction.AddAIInDbAsync(reply.aiName);
-                // 参进SessionParticipant
-                await _dbAction.AddUserInSessionParticipantAsync(aiId, csid
-                );
-                // 保存
+                // AI走相同路径(存数据库, 返回给前端)
+                var aiId = await ResolveAiIdAsync(reply.aiName, csid, uid);
                 await _dbAction.SaveChatInMessageAsync(csid, aiId,
                     reply.message, reply.type);
                 // TODO: 前端要求格式并非如此
@@ -140,5 +130,29 @@ public class ChatController : ControllerBase
             Console.WriteLine(e);
             throw;
         }
+    }
+
+    /// AI 回完话之后: 决定这条 AI 消息记在哪个用户头上。
+    /// 坑: pyai 回的 aiName 其实是"会话字典的 key", 也就是用户名(见 pyai/Controller/ordinary_chat.py 的 "aiName": name),
+    /// 拿它直接 AddAIInDbAsync 就会造出一堆叫用户名/重名的空壳 AI —— 数据库里 keke 已经堆了 40 条。
+    /// 所以顺序是: ① 会话里已有的那位 AI ② 按名字找(排除真人自己) ③ 真没有才新建。
+    private async Task<int> ResolveAiIdAsync(string aiNameFromAi, int sessionId, int userId)
+    {
+        // ① 会话里本来就有 AI(ApplyFriend 建的那条, 带 tags + 头像), AI 的话就记在它头上
+        if (await _dbAction.GetAiIdInSessionAsync(sessionId, userId) is { } inSession)
+            return inSession;
+
+        // ② 名字能对上就复用, 但绝不能是真人自己(历史数据里存在 AI 用了用户名的脏行)
+        if (await _dbAction.GetAiIdByNameAsync(aiNameFromAi, userId) is { } byName)
+        {
+            await _dbAction.AddUserInSessionParticipantAsync(byName, sessionId);
+            return byName;
+        }
+
+        // ③ 兜底新建, 并拉进会话
+        Console.WriteLine($"[warn] session {sessionId} 里没有 AI 参与者, 按名字 \"{aiNameFromAi}\" 新建一个");
+        var createdId = await _dbAction.AddAIInDbAsync(aiNameFromAi);
+        await _dbAction.AddUserInSessionParticipantAsync(createdId, sessionId);
+        return createdId;
     }
 }
