@@ -22,7 +22,24 @@ def get_info_from_chat(data: dict):
     messages: dict = data.get("messages")
     name: str = list(messages.keys())[0]
     session_list: list = messages[name]
-    return (api_key, sessionId, name, session_list)
+    persona: dict = data.get("persona")
+    ai_name: str = persona.get("aiName")
+    avatar_sescription: str = persona.get("description")
+    user_call_name: str = persona.get("userCallName")
+    user_gender: str = persona.get("userGender")
+    ai_tags: list = persona.get("tags")
+
+    return (
+        api_key,
+        sessionId,
+        name,
+        session_list,
+        ai_name,
+        avatar_sescription,
+        user_call_name,
+        user_gender,
+        ai_tags,
+    )
 
 
 # 预人设
@@ -66,4 +83,3 @@ def get_reply_selected(reply_dict: dict) -> tuple:
 # 根据id拿description
 def get_description_by_id(id: int, id_description: list) -> str:
     return next((i["description"] for i in id_description if i["id"] == id), None)
-

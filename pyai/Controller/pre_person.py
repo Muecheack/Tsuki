@@ -2,10 +2,10 @@ import json
 import logging
 from typing import Any
 
-from flask import Blueprint, Response, jsonify, request
-from Shell import file_IO
 import ai_service
 import Core.parse as parse
+from flask import Blueprint, Response, jsonify, request
+from Shell import file_IO
 from Shell.file_IO import to_promp_file_normal, to_promp_file_pre
 
 # 兜底日志配置: 无 handler 时才有生效, 不会覆盖 Flask/宿主的日志配置
@@ -103,6 +103,7 @@ def pre_person() -> Response:
     to_promp_file_normal(ai_name, user_name, gender, call_name, description, tags_list)
     logger.info("已生成常规聊天提示词文件: prmp/prmp_chat.txt")
     logger.info("返回预人设响应: 回复字符数=%s", len(reply or ""))
+
     return jsonify(
         {"reply": reply, "selected": {"tags": tags_list, "avatarId": avatar_id}}
     )

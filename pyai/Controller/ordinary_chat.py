@@ -2,10 +2,11 @@ import json
 import logging
 from pprint import pprint
 
-from flask import Blueprint, Response, request, jsonify
-from Core import parse
-from Shell import file_IO
 import ai_service
+from Core import parse
+from flask import Blueprint, Response, jsonify, request
+from Shell import file_IO
+from Shell.file_IO import to_promp_file_normal
 
 # 兜底日志配置: 无 handler 时才有生效, 不会覆盖 Flask/宿主的日志配置
 if not logging.getLogger().handlers:
@@ -22,6 +23,13 @@ ordinary_chat_bp = Blueprint("ordinary_chat", __name__)
 {
     'apiKey': xxx,
     'sessionId': 4,
+    'persona': {
+        aiName: xxx,
+        description: xxx,
+        userCallName: xxx,
+        userGender: xxx,
+        tags: [string]
+    }
     'messages': {
             '测试用户1': [
                 {'role': 'user', 'content': '你好'}
@@ -44,7 +52,17 @@ def ordinary_chat() -> Response:
     logger.info("收到常规聊天请求: %s %s", request.method, request.path)
     data = request.get_json()
     info_from_chat = parse.get_info_from_chat(data)
-    api_key, sessionId, name, session_list = info_from_chat
+    (
+        api_key,
+        sessionId,
+        name,
+        session_list,
+        ai_name,
+        avatar_description,
+        user_call_name,
+        user_gender,
+        ai_tags,
+    ) = info_from_chat
     logger.info(
         "解析请求完成: sessionId=%s, name=%s, 历史消息条数=%s",
         sessionId,
@@ -58,6 +76,10 @@ def ordinary_chat() -> Response:
 
     print("收到的完整json:")
     pprint(data, indent=4, sort_dicts=False)
+
+    to_promp_file_normal(
+        ai_name, name, user_gender, user_call_name, avatar_description, ai_tags
+    )
 
     # 接收到的sessionId: sessionId, name: messages, session_list: {'测试用户1': [{'role': 'user', 'content': '你好'}]}
     prmp_path = "prmp/prmp_chat.txt"
@@ -78,7 +100,7 @@ def ordinary_chat() -> Response:
     logger.info("返回常规聊天响应: sessionId=%s, aiName=%s", sessionId, name)
     return jsonify(
         {
-            "aiName": name,
+            "aiName": ai_name,
             "sessionId": sessionId,
             "message": response,
             "type": "text",
