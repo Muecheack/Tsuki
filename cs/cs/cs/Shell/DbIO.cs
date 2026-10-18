@@ -163,7 +163,7 @@ public class DbIO
     }
     
     // 拿文本类文件的里边的文本
-    public static async Task<string> GetFileString(IFormFile file, Encoding? encoding = null)
+    public async Task<string> GetFileString(IFormFile file, Encoding? encoding = null)
     {
         if (file == null || file.Length == 0)
         {
