@@ -92,6 +92,7 @@
   "addFriend": {
     "searchPlaceholder": "想要加谁喵?",
     "searching": "搜索中...",
+    "searchFail": "出错了(╥﹏╥)",
     "detailPlaceholder": "详情页待补喵...(占位)",
     "back": "← 返回搜索",
     "addSuccess": "添加成功喵~",

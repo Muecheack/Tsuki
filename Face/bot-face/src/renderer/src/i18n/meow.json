@@ -91,6 +91,7 @@
   "addFriend": {
     "searchPlaceholder": "添加好友",
     "searching": "搜索中...",
+    "searchFail": "出错了(╥﹏╥)",
     "detailPlaceholder": "ddd",
     "back": "aaa",
     "addSuccess": "添加成功",

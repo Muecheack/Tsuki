@@ -1,3 +1,4 @@
+using System.Text;
 using cs.Repo;
 using Microsoft.EntityFrameworkCore;
 
@@ -106,8 +107,8 @@ public class DbIO
     }
 
     // 存avatar-url
-    // 坑: 前端传的是拼了 baseUrl 的绝对地址(http://localhost:5108/Resource/Avatar/x.jpg),
-    // 库里存的是相对路径(Resource/Avatar/x.jpg), 直接全等比较永远匹配不上 —— 所以这里先归一化再比
+    // 前端传的是绝对路径(http://localhost:5108/Resource/Avatar/x.jpg),
+    // 库里是相对路径(Resource/Avatar/x.jpg), 直接全等永远匹配不上, 所以先归一化再比
     public async Task<IOState> SaveAvatarAsync(string avatarUrl, int aiId)
     {
         if (string.IsNullOrWhiteSpace(avatarUrl)) return IOState.NotFound;
@@ -159,5 +160,21 @@ public class DbIO
         };
         await _db.Messages.AddAsync(messags);
         await _db.SaveChangesAsync();
+    }
+    
+    // 拿文本类文件的里边的文本
+    public static async Task<string> GetFileString(IFormFile file, Encoding? encoding = null)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        encoding ??= Encoding.UTF8;
+
+        using var stream = file.OpenReadStream();
+        using var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true);
+        
+        return await reader.ReadToEndAsync();
     }
 }

@@ -1,14 +1,12 @@
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import nekoHead from '@/assets/avator/neko_head.png'
-import twohiregird from '@/assets/avator/twohiregird.jpg'
 
 // 官方账号的稳定标识（不随语言变：会话查找 / sessionId key / 判断都用它）
-// 显示名走 nameKey → 渲染时 t() 翻译，切语言实时跟随（只有官方有 nameKey，其它好友不译）
 const OFFICIAL_ID = 'official'
 
 // AI 人设名：预发人设接口（preAiPerson）的 aiName 参数
-// 注册页注册成功后发一次、应用启动时补发一次，两处共用这个常量，避免硬编码漂移
+// 注册页注册成功后发一次、应用启动时发一次
 export const AI_PERSON_NAME = 'Tsuki'
 
 // 非官方好友的本地缓存 key（官方由常量提供，不入库）
@@ -60,8 +58,13 @@ export interface IPersonTags {
 }
 
 // 预人设草稿
-// [aiReply, tags, avatarUrl]
-export type IPrePersonDataDraft = [aiReply: string, tags: string[], avatarUrl: string]
+// [aiReply, tags, avatarUrl, name]
+export type IPrePersonDataDraft = [
+  aiReply: string,
+  tags: string[],
+  avatarUrl: string,
+  name?: string
+]
 
 // 预人设草稿的本地缓存 key
 const DRAFT_STORAGE_KEY = 'bot-face-draft'

@@ -7,7 +7,7 @@ import { t } from '@/i18n';
 import CardMessage from './CardMessage.vue';
 import CardMessageClicked from './CardMessageClicked.vue';
 import nekoHead from '@/assets/avator/neko_head.png';
-import { sendChatMessageAsync } from "../../../../server/api/http"
+import { sendChatMessageAsync, uploadFileAsync } from "../../../../server/api/http"
 
 const chat = useChatStore();
 const user = JSON.parse(localStorage.getItem('bot-face-user') || '{}');
@@ -21,14 +21,12 @@ console.log(`当前好友名:${prop.name}`)
 // 当前选中的好友
 const selected = computed(() => chat.friends.find(x => x.name === prop.name));
 // 当前会话的 sessionId：需要时用 selected.value?.sessionId（store 里就存着，不用从父组件传）
-// 注：这里不要再起名叫 curSessionId —— 会和上面 prop 的同名字段撞，模板/脚本里看到的不是同一个东西
 // 显示名：官方有 nameKey（走语言包，切语言实时跟随），其它好友直接显示 name
 const displayName = computed(() => selected.value?.nameKey ? t(selected.value.nameKey) : prop.name);
 
 // 卡片消息：点击后弹的中央面板开关 + 当前点的卡片数据
 const showCardClicked = ref(false);
 const clickedCard = ref<{ name: string; avator: string } | null>(null);
-
 
 //卡片数据, 头像, 标签
 const draftData = computed(() => chat.draft[0])
@@ -57,6 +55,7 @@ watch(
 function addTags(tags: string[]) {
     chat.personTages = (tags ?? []).map(x => ({ text: x, type: x }));
 }
+
 // 打开卡片详情
 function openCard(name: string) {
     clickedCard.value = {
@@ -77,7 +76,7 @@ function onEmoji(val: string) {
 }
 
 // 待发送的文件（显示在输入框上方）
-const pendingFiles = ref<{ name: string; size: string }[]>([]);
+const pendingFiles = ref<{ name: string; size: string; file: File }[]>([]);
 
 // 发送：文字 + 文件一起进消息列表（都是 user 发的）
 async function sendMessage() {
@@ -101,10 +100,15 @@ async function sendMessage() {
             chat.addChatList(targetName, targetName, '出现错误，请稍后再试');
         }
     }
-    // 发送文件（显示成 [文件] 文件名）
-    files.forEach(f => {
-        chat.addChatList(prop.name, 'user', `${t('chat.fileTag')} ${f.name} (${f.size})`);
-    });
+    // 文件存在就发, 不存在拉倒
+    if (pendingFiles.value.length > 0) {
+        const file = pendingFiles.value[0].file;;
+        const code = await uploadFileAsync(file)
+        if (code !== 200) {
+            console.error('上传文件失败:', code);
+            chat.addChatList(prop.name, prop.name, '上传文件失败，请稍后再试');
+        }
+    }
 }
 
 // 资源管理器这一块：选文件 → 存进待发送列表
@@ -116,7 +120,8 @@ function onFileSelect(e: Event) {
             name: file.name,
             size: file.size > 1024 * 1024
                 ? (file.size / 1024 / 1024).toFixed(1) + ' MB'
-                : (file.size / 1024).toFixed(1) + ' KB'
+                : (file.size / 1024).toFixed(1) + ' KB',
+            file: file
         });
     }
     input.value = '';
@@ -198,7 +203,7 @@ watch(
                     :class="['flex flex-col w-fit p-2 max-w-2xl min-w-0', msg.sender === 'user' ? 'self-end' : 'self-start']">
                     <!-- 名字：自己显示"我"，对方显示好友名 -->
                     <label class="text-gray-500 text-xs">{{ msg.sender === 'user' ? t('chat.me') : displayName
-                        }}</label>
+                    }}</label>
 
                     <!-- 卡片消息：渲染卡片，点击弹出中央面板详情 -->
                     <!-- 开发阶段msg.sender是KeKe -->
@@ -219,7 +224,7 @@ watch(
         <!-- 待发送文件卡片区 -->
         <div v-if="pendingFiles.length" class="flex flex-col gap-2 px-6 pt-2 border-t border-gray-200/80">
             <div v-for="(f, idx) in pendingFiles" :key="idx"
-                class="flex items-center justify-between bg-white/60 backdrop-blur-sm border border-white/30 rounded-sm px-3 py-2">
+                class="flex items-center justify-between bg-white/80 backdrop-blur-3xl border border-white/30 rounded-sm px-3 py-2">
                 <div class="flex items-center gap-2">
                     <fv-icon-element value="Document" :font-size="16" />
                     <div class="flex flex-col">
@@ -239,7 +244,7 @@ watch(
             <fv-text-box v-model="draft" :placeholder="t('chat.placeholder')" class="flex-1 text-gray-500"
                 @keyup.enter="sendMessage" />
             <fv-button icon="Send" class="text-gray-800 shrink-0 cursor-pointer" @click="sendMessage">{{ t('chat.send')
-            }}</fv-button>
+                }}</fv-button>
 
             <!-- 表情和文件icon -->
             <div class="flex flex-row gap-4 absolute right-3">

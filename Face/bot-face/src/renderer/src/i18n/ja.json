@@ -91,6 +91,7 @@
   "addFriend": {
     "searchPlaceholder": "誰を追加する?",
     "searching": "検索中...",
+    "searchFail": "エラーが出ちゃった(╥﹏╥)",
     "detailPlaceholder": "詳細ページは準備中...",
     "back": "← 検索に戻る",
     "addSuccess": "友達追加完了~",

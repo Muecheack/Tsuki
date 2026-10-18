@@ -45,7 +45,7 @@ async function applyFriend(aiName: string) {
         // （它是先加好友再发请求的，不回滚会跟着 watch(friends) 一起落盘，重启后还赖在侧栏）
         if (!ok) chat.removeFriend(prop.name)
     }
-    // 全局提示（fv-message-bar）
+    // 全局提示,fv-message-bar
     createMessageBar(
         ok
             ? (isExist ? t('addFriend.alreadyFriend') : t('addFriend.addSuccess'))

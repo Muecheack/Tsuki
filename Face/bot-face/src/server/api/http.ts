@@ -45,10 +45,16 @@ export interface ApplyFirend {
   sessionId: number
 }
 
+// 文件发送接口
+export interface UploadFile {
+  // ...
+}
+
 export type RegisterReply = ApiReply<RegisterData>
 export type ChatReply = ApiReply<ChatData>
 export type PrepersonReply = ApiReply<PrePerson>
 export type ApplyFriendReply = ApiReply<ApplyFirend>
+export type UploadFileReply = ApiReply<UploadFile>
 
 // 前端把名字和人设和头像名给ai发过去
 // 发送注册信息，成功返回 { id, token }（token 是免登录凭证，id 是新用户 Id）
@@ -118,8 +124,6 @@ export async function sendChatMessageAsync(
     return { replyMessage, replySessionId }
   } catch (err) {
     // HTTP 非 2xx（axios 抛 AxiosError，且后端返回体有 code）→ 转成带 code 的 ApiError
-    // 上面显式 throw 的 ApiError（code !== 200 分支）→ 不是 AxiosError，落到 throw err 原样抛
-    // 网络错误/后端没起（AxiosError 但无 response.data）→ 落到 throw err 原样抛
     if (axios.isAxiosError(err)) {
       const data = err.response?.data as ChatReply | undefined
       if (data && typeof data.code === 'number') {
@@ -132,13 +136,13 @@ export async function sendChatMessageAsync(
 
 // 预发人设
 // 不出意外这个tags只有guide那次用上, 其它都用不上
+// 返回[aiReply, selectedTags, avatarUrl]
 export async function preAiPerson(
   userName: string,
   aiName: string
 ): Promise<[string, string[], string]> {
   const baseUrl = 'http://localhost:5108'
   try {
-    // TODO: 填路径
     const reply = await axios.post<PrepersonReply>(`${baseUrl}/api/PrePerson/preperson1`, {
       userName,
       aiName
@@ -155,8 +159,6 @@ export async function preAiPerson(
     //    }
     // }
   } catch (err) {
-    // HTTP 非 2xx（axios 抛 AxiosError，且后端返回体有 code）→ 转成带 code 的 ApiError
-    // 网络错误/后端没起（AxiosError 但无 response.data）→ 落到 throw err 原样抛
     if (axios.isAxiosError(err)) {
       const data = err.response?.data as PrepersonReply | undefined
       if (data && typeof data.code === 'number') {
@@ -168,6 +170,7 @@ export async function preAiPerson(
 }
 
 // 申请好友
+// 返回 { code: responst.data.code, sessionId }
 export async function applyFriendAsync(
   tags: string[],
   avatarUrl: string,
@@ -195,8 +198,6 @@ export async function applyFriendAsync(
     // code 给调用方判断成败；sessionId 给调用方绑到联系人上（好友对象里也留一份）
     return { code: responst.data.code, sessionId }
   } catch (err) {
-    // HTTP 非 2xx（axios 抛 AxiosError，且后端返回体有 code）→ 转成带 code 的 ApiError
-    // 网络错误/后端没起（AxiosError 但无 response.data）→ 落到 throw err 原样抛
     if (axios.isAxiosError(err)) {
       const data = err.response?.data as PrepersonReply | undefined
       if (data && typeof data.code === 'number') {
@@ -204,5 +205,24 @@ export async function applyFriendAsync(
       }
     }
     throw err
+  }
+}
+
+// 上传文件
+export async function uploadFileAsync(file: File) {
+  const formData = new FormData()
+  formData.append('file', file) // 字段名: file
+  try {
+    // TODO: 这里加上后端地址
+    const reply = await axios.post('', formData)
+    const replyCode = reply.data.code
+    return replyCode
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const data = err.response?.data as UploadFileReply | undefined
+      if (data && typeof data.code === 'number') {
+        throw new ApiError(data.code, data.message)
+      }
+    }
   }
 }

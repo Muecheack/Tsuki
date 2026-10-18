@@ -91,6 +91,7 @@
   "addFriend": {
     "searchPlaceholder": "Who to add?",
     "searching": "Searching...",
+    "searchFail": "Something went wrong (╥﹏╥)",
     "detailPlaceholder": "Detail page coming soon...",
     "back": "← Back to search",
     "addSuccess": "Friend added successfully~",
