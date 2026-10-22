@@ -25,6 +25,14 @@ desktop.ini
 # 编辑器 / IDE 本地状态（.idea 下 workspace.xml、vcs.xml 等不进仓库）
 .idea/
 .vs/
+
+# AI 编辑器/代理的会话状态（话题标题、创建时间、剪贴板附件等，
+# 在哪个目录工作过就往哪里撒，属于纯本地状态，不属于项目内容）
+.reasonix/
+
+# 编辑器改文件时留下的事务备份快照，形如
+# .TokenService.cs.reasonix-tx-1787477401468426100-ef3b47c5-2.bak
+*.reasonix-tx-*.bak
 *.suo
 *.user
 *.userosscache
@@ -65,6 +73,10 @@ logs/
 # 编译产物：按项目根锚定，避免误伤 node_modules 里名为 bin 的目录
 /cs/cs/cs/bin/
 /cs/cs/cs/obj/
+
+# 运行期用户上传的文件（由 FileController 落盘，属于用户数据，
+# 每个上传都进仓库毫无意义，且会持续膨胀）
+/cs/cs/cs/Resource/Uploads/
 /Wpf-end/BotFace/BotFace/bin/
 /Wpf-end/BotFace/BotFace/obj/
 
