@@ -163,11 +163,11 @@ public class DbIO
     }
     
     // 拿文本类文件的里边的文本
-    public async Task<string> GetFileString(IFormFile file, Encoding? encoding = null)
+    public async Task<(string fileName, string fileContent)> GetFileString(IFormFile file, Encoding? encoding = null)
     {
         if (file == null || file.Length == 0)
         {
-            return string.Empty;
+            return (string.Empty, string.Empty);
         }
 
         encoding ??= Encoding.UTF8;
@@ -175,6 +175,9 @@ public class DbIO
         using var stream = file.OpenReadStream();
         using var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true);
         
-        return await reader.ReadToEndAsync();
+        var fileContent = await reader.ReadToEndAsync();
+        var fileName = file.FileName;
+        
+        return (fileName, fileContent);
     }
 }

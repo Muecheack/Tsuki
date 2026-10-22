@@ -44,3 +44,6 @@ public record SelectedDto(List<string> tags, int avatarId);
 
 // 点击好友申请的dto
 public record ApplyFriendDto(List<string> tags, string avatarUrl, string preReply, string userName, string aiName);
+
+// 发文件的
+public record FileDto(string aiName, string userName, IFormFile file, int sessionId);
