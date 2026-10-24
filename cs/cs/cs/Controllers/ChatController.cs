@@ -43,7 +43,7 @@ public class ChatController : ControllerBase
                     // 创建会话
                     var sessionId = await _dbAction.CreateSessionAsync(uid);
                     // 保存消息
-                    await _dbAction.SaveChatInMessageAsync(sessionId, uid, content, type);
+                    await SaveUserMessageAsync(sessionId, uid, content, type);
                     // 扔给ai
                     // TODO: 到时候上AI端看一眼真实路径再改
                     string aiUrl = "http://127.0.0.1:10086/api/ai";
@@ -93,7 +93,7 @@ public class ChatController : ControllerBase
             if (userId is { } uid && currentSessionId is { } csid)
             {
                 // 保存消息
-                await _dbAction.SaveChatInMessageAsync(csid, uid, content, type);
+                await SaveUserMessageAsync(csid, uid, content, type);
                 // 扔给ai
                 string aiUrl = "http://127.0.0.1:10086/api/ai";
                 var history = await _dbAction.GetChatHistoryAsync(csid);
@@ -130,6 +130,14 @@ public class ChatController : ControllerBase
             Console.WriteLine(e);
             throw;
         }
+    }
+
+    /// 用户消息落库。空正文直接跳过 —— 前端「只发文件」时会用 type=file + 空 message 触发这一轮，
+    /// 文件正文此时已经由 FileController 入池了，再存一条空消息只会污染历史。
+    private async Task SaveUserMessageAsync(int sessionId, int userId, string? content, string? type)
+    {
+        if (!string.IsNullOrWhiteSpace(content))
+            await _dbAction.SaveChatInMessageAsync(sessionId, userId, content, type);
     }
 
     /// AI 回完话之后: 决定这条 AI 消息记在哪个用户头上。

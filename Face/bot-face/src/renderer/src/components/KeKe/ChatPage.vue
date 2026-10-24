@@ -7,7 +7,7 @@ import { t } from '@/i18n';
 import CardMessage from './CardMessage.vue';
 import CardMessageClicked from './CardMessageClicked.vue';
 import nekoHead from '@/assets/avator/neko_head.png';
-import { sendChatMessageAsync, uploadFileAsync } from "../../../../server/api/http"
+import { sendChatMessageAsync, uploadFileAsync, ApiError } from "../../../../server/api/http"
 
 const chat = useChatStore();
 const user = JSON.parse(localStorage.getItem('bot-face-user') || '{}');
@@ -78,36 +78,74 @@ function onEmoji(val: string) {
 // 待发送的文件（显示在输入框上方）
 const pendingFiles = ref<{ name: string; size: string; file: File }[]>([]);
 
+// 发送中标记：Enter 和点击按钮可能连点，防重复发送
+const sending = ref(false);
+
 // 发送：文字 + 文件一起进消息列表（都是 user 发的）
 async function sendMessage() {
+    if (sending.value) return;
     const content = draft.value.trim();
-    const files = pendingFiles.value;
-    // 清空
+    // 关键：先做快照再清空。pendingFiles.value = [] 是「换一个新数组」，
+    // 之后再去读 pendingFiles.value 就永远是空数组了（原来的 bug：文件既不渲染也不上传）
+    const files = pendingFiles.value.slice();
+    // 发请求前记下这次要发去哪个会话：等待期间用户切了好友，回复也得落回原来那个会话
+    const targetName = prop.name;
+    if (!content && files.length === 0) return;
+
+    sending.value = true;
+    // 清空输入框和待发列表（文件本体已经在上面的 files 快照里，不会丢）
     draft.value = '';
     pendingFiles.value = [];
-    if (!content && files.length === 0) return;
-    // 发送文字
-    if (content) {
-        chat.addChatList(prop.name, 'user', content);
-        // 注：消息落盘由 store 里 watch(friends, { deep: true }) 统一负责（addChatList 一追加就写回），
-        // 发请求前记下这次要发去哪个会话：等待期间用户切了好友，回复也得落回原来那个会话
-        const targetName = prop.name
+
+    try {
+        // ① 先传文件：/api/File/file1 只把文件正文拼进消息池，不调 AI。
+        //    必须先传完再触发下面那轮 chat1，AI 才能在同一轮里看到「文件 + 文字」
+        let uploaded = 0;
+        for (const item of files) {
+            // 先把「我发的这条文件」放进消息列表 —— 界面上立刻能看到文件气泡，
+            // 之后再等上传结果；失败则额外追加一条提示，气泡本身不会丢
+            chat.addChatList(targetName, 'user', item.name, 'file', item.size);
+            try {
+                const code = await uploadFileAsync(targetName, userName, item.file);
+                if (code === 200) {
+                    uploaded++;
+                } else {
+                    console.error('上传文件失败:', code);
+                    chat.addChatList(targetName, targetName, '上传文件失败，请稍后再试');
+                }
+            } catch (err) {
+                console.error('上传文件失败:', err);
+                // 把后端给的具体原因带出来（缺字段/会话无效/用户不存在…），
+                // 不然界面上永远只有一句「请稍后再试」，日志里也只有 undefined
+                const reason = err instanceof ApiError ? err.message : '请稍后再试';
+                chat.addChatList(targetName, targetName, `上传文件失败：${reason}`);
+            }
+        }
+
+        // 只有文件、且一个都没进池子 → 没有能触发的东西，到此为止
+        if (!content && uploaded === 0) return;
+
+        // ② 文字气泡（文件之后，顺序和用户操作意图一致）
+        if (content) chat.addChatList(targetName, 'user', content);
+
+        // ③ 整个回合只触发这一次 AI：
+        //    有文字 → 正常发文字；没文字 → type='file' + 空正文（后端对空正文不落库，只当触发器）
+        //    这样文件+文字只有一条回复，AI 也能一次看全
         try {
-            const { replyMessage } = await sendChatMessageAsync(targetName, userName, content)
-            chat.addChatList(targetName, targetName, replyMessage ?? '出现错误，请稍后再试');
+            const { replyMessage } = await sendChatMessageAsync(
+                targetName,
+                userName,
+                content,
+                content ? 'text' : 'file'
+            );
+            // 注：消息落盘由 store 里 watch(friends, { deep: true }) 统一负责（addChatList 一追加就写回）
+            chat.addChatList(targetName, targetName, replyMessage || '出现错误，请稍后再试');
         } catch (err) {
             console.error('发送消息失败:', err);
             chat.addChatList(targetName, targetName, '出现错误，请稍后再试');
         }
-    }
-    // 文件存在就发, 不存在拉倒
-    if (pendingFiles.value.length > 0) {
-        const file = pendingFiles.value[0].file;;
-        const code = await uploadFileAsync(file)
-        if (code !== 200) {
-            console.error('上传文件失败:', code);
-            chat.addChatList(prop.name, prop.name, '上传文件失败，请稍后再试');
-        }
+    } finally {
+        sending.value = false;
     }
 }
 
@@ -131,6 +169,12 @@ function onFileSelect(e: Event) {
 function removeFile(index: number) {
     pendingFiles.value.splice(index, 1);
 }
+
+// 切换好友：清掉上一个会话还没发出去的文件，避免「选中了文件 → 切好友 → 发给了另一个人」
+// （ChatPage 没有按 name 加 key，切好友时是同一个实例，pendingFiles 会留着）
+watch(() => prop.name, () => {
+    pendingFiles.value = [];
+});
 
 // 消息区滚动容器
 const msgContainer = ref<HTMLElement | null>(null);
@@ -203,13 +247,24 @@ watch(
                     :class="['flex flex-col w-fit p-2 max-w-2xl min-w-0', msg.sender === 'user' ? 'self-end' : 'self-start']">
                     <!-- 名字：自己显示"我"，对方显示好友名 -->
                     <label class="text-gray-500 text-xs">{{ msg.sender === 'user' ? t('chat.me') : displayName
-                    }}</label>
+                        }}</label>
 
                     <!-- 卡片消息：渲染卡片，点击弹出中央面板详情 -->
                     <!-- 开发阶段msg.sender是KeKe -->
                     <div v-if="msg.type === 'card'" class="cursor-pointer min-w-[20%]"
                         @click="addTags(tags); openCard(msg.sender)">
                         <CardMessage :name="msg.sender" :avator="cardAvator" />
+                    </div>
+
+                    <!-- 文件消息：卡片样式（text 是文件名，fileSize 是体积；内容只在后端/AI 侧） -->
+                    <div v-else-if="msg.type === 'file'"
+                        class="flex items-center gap-2 border-white/20 bg-white/90 backdrop-blur-2xl shadow-2xl border w-fit max-w-full rounded-sm px-2 py-1">
+                        <fv-icon-element value="Document" :font-size="16" />
+                        <div class="flex flex-col min-w-0">
+                            <span class="text-sm text-gray-800 break-all">{{ msg.text }}</span>
+                            <span class="text-xs text-gray-400">{{ t('chat.fileTag')
+                                }}<template v-if="msg.fileSize"> · {{ msg.fileSize }}</template></span>
+                        </div>
                     </div>
 
                     <!-- 文本消息（有 i18nKey 走语言包，切语言跟随；普通消息走 text；老消息无 type 也走这里） -->
@@ -241,10 +296,11 @@ watch(
         <div v-if="prop.name !== chat.officialId"
             class="flex flex-row items-center relative gap-2 px-20 py-3 border-t border-gray-200/80  backdrop-blur-lg">
 
+            <!-- 文本输入框和发送按钮 -->
             <fv-text-box v-model="draft" :placeholder="t('chat.placeholder')" class="flex-1 text-gray-500"
                 @keyup.enter="sendMessage" />
             <fv-button icon="Send" class="text-gray-800 shrink-0 cursor-pointer" @click="sendMessage">{{ t('chat.send')
-                }}</fv-button>
+            }}</fv-button>
 
             <!-- 表情和文件icon -->
             <div class="flex flex-row gap-4 absolute right-3">

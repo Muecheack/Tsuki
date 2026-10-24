@@ -46,4 +46,6 @@ public record SelectedDto(List<string> tags, int avatarId);
 public record ApplyFriendDto(List<string> tags, string avatarUrl, string preReply, string userName, string aiName);
 
 // 发文件的
-public record FileDto(string aiName, string userName, IFormFile file, int sessionId);
+// 全部字段可空：交给 FileController 自己校验并返回带 code 的 400。
+// 如果字段是非空类型，模型校验会先一步回 problem+json（没有 code），前端只能打出 undefined
+public record FileDto(string? aiName, string? userName, IFormFile? file, int? sessionId);

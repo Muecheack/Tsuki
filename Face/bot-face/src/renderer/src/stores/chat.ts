@@ -20,6 +20,9 @@ export interface IMessage {
   sender: string // 'user' = 自己；其它 = 对方名字
   type: 'text' | 'card' | 'file'
   text?: string
+  // 文件消息专用：text 存文件名，fileSize 存格式化后的体积（"12.3 KB"）
+  // 文件内容本身落后端数据库/AI 上下文，前端只留这张卡片要显示的信息
+  fileSize?: string
   // i18nKey：消息内容走语言包（写死的引导/前言消息用）。
   // 有 i18nKey 时优先用它渲染（t(i18nKey)），切语言自动跟随；text 作为普通动态消息的兜底
   i18nKey?: string
@@ -225,15 +228,19 @@ export const useChatStore = defineStore('chat', () => {
   }
 
   // 给某个好友追加消息
+  // fileSize：只对 type = 'file' 有意义（text 传文件名），其它类型忽略
   function addChatList(
     parentName: string,
     sender: string,
     text: string,
-    type: 'text' | 'card' | 'file' = 'text'
+    type: 'text' | 'card' | 'file' = 'text',
+    fileSize?: string
   ) {
     const target = friends.value.find((x) => x.name === parentName)
     if (target) {
-      target.message.push({ sender, text, type })
+      const msg: IMessage = { sender, text, type }
+      if (type === 'file' && fileSize) msg.fileSize = fileSize
+      target.message.push(msg)
       // 未读只算「对方发来的、且用户没在看的」新消息：
       // 自己发的（sender === 'user'）不算；用户正打开这个会话（activeChat）也不算
       if (sender !== 'user' && parentName !== activeChat.value) target.unread++

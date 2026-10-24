@@ -46,8 +46,10 @@ export interface ApplyFirend {
 }
 
 // 文件发送接口
+// 后端 FileController.ReceivedFile 用 [FromForm] FileDto 接：字段名 aiName / userName / sessionId / file
 export interface UploadFile {
-  // ...
+  code?: number
+  message?: string
 }
 
 export type RegisterReply = ApiReply<RegisterData>
@@ -208,21 +210,62 @@ export async function applyFriendAsync(
   }
 }
 
+// 后端校验失败时回的是 ASP.NET 的 problem+json（{ title, errors: { 字段: [说明] } }），
+// 没有 code 字段。以前这里只认 code，认不出就把响应吞掉返回 undefined，
+// 日志里只剩「上传文件失败: undefined」——这里统一榨成一句能看懂的说明
+function pickProblemMessage(data: unknown): string | undefined {
+  if (!data || typeof data !== 'object') return undefined
+  const body = data as {
+    message?: unknown
+    title?: unknown
+    errors?: Record<string, string[] | undefined>
+  }
+  if (typeof body.message === 'string' && body.message) return body.message
+  if (body.errors && typeof body.errors === 'object') {
+    const first = Object.entries(body.errors)[0]
+    if (first) return `${first[0]}: ${first[1]?.[0] ?? '参数不合法'}`
+  }
+  if (typeof body.title === 'string' && body.title) return body.title
+  return undefined
+}
+
 // 上传文件
-export async function uploadFileAsync(file: File) {
+// 注意：后端 FileDto.file 是 IFormFile，必须走 multipart/form-data 表单；
+// 以前把 FormData 塞进 JSON body（{ file: formData }）序列化后只剩 {}，后端永远收不到文件
+export async function uploadFileAsync(aiName: string, userName: string, file: File) {
+  const sessionId = localStorage.getItem(`sessionId_${aiName}`)
   const formData = new FormData()
-  formData.append('file', file) // 字段名: file
+  formData.append('file', file) // 字段名必须有，和后端 FileDto.file 对应
+  formData.append('aiName', aiName)
+  formData.append('userName', userName)
+  formData.append('sessionId', sessionId ?? '')
+  // 排查用：真发出去的是什么。aiName/userName 为空时后端只会回「field is required」，很难反查
+  console.log('[upload] 发送:', {
+    aiName,
+    userName,
+    sessionId,
+    file: file.name,
+    size: file.size
+  })
   try {
-    // TODO: 这里加上后端地址
-    const reply = await axios.post('', formData)
+    // 不要手动设置 Content-Type：浏览器会给 multipart 补上 boundary，手写反而会缺 boundary 被后端拒
+    const reply = await axios.post<UploadFileReply>(
+      'http://localhost:5108/api/File/file1',
+      formData
+    )
     const replyCode = reply.data.code
     return replyCode
   } catch (err) {
     if (axios.isAxiosError(err)) {
-      const data = err.response?.data as UploadFileReply | undefined
-      if (data && typeof data.code === 'number') {
-        throw new ApiError(data.code, data.message)
-      }
+      const data = err.response?.data
+      const status = err.response?.status
+      const code = (data as { code?: unknown } | undefined)?.code
+      // 业务错误带 code → 原样透出；校验错误（problem+json）→ 用 HTTP 状态码 + 具体字段说明
+      throw new ApiError(
+        typeof code === 'number' ? code : (status ?? 0),
+        pickProblemMessage(data) ?? err.message
+      )
     }
+    throw err
   }
 }
