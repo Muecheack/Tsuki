@@ -35,7 +35,13 @@ public partial class KeKeContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("Call_Name");
             entity.Property(e => e.Gender).HasMaxLength(50);
-            entity.Property(e => e.Name).HasMaxLength(50);
+            // Name 是几乎所有查询的入口（登录、注册去重、按名字找 AI）。
+            // SQL Server 的默认排序规则不区分大小写，而 SQLite 的 = 走 BINARY 是区分的 ——
+            // 不加 NOCASE，"Alice" 和 "alice" 就会被当成两个不同的用户。
+            // 注：NOCASE 只折叠 ASCII 大小写，中文本来就没有大小写，不受影响。
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .UseCollation("NOCASE");
         });
 
         // ── 头像库（内置字典表：初始化一次，不受外部改变）──
