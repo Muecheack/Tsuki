@@ -5,6 +5,7 @@ using cs.Services;
 using cs.Shell;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -21,8 +22,23 @@ public class Program
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddOpenApi();
-        builder.Services.AddDbContext<KeKeContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        // ── 数据库：SQLite 单文件库 ──
+        // 连接串里的相对路径是按【进程当前工作目录】解析的，而 dotnet run、桌面壳拉起 exe、
+        // 从别的目录调试，三者工作目录不一定相同，会把 KeKe.db 散落到好几个地方（各建一份空库）。
+        // 这里统一锚定到 ContentRootPath，保证全项目只有一份库。
+        var rawConnection = builder.Configuration.GetConnectionString("DefaultConnection")
+                            ?? throw new InvalidOperationException(
+                                "缺少连接串 ConnectionStrings:DefaultConnection");
+        var sqliteConnection = new SqliteConnectionStringBuilder(rawConnection);
+        if (!Path.IsPathRooted(sqliteConnection.DataSource))
+        {
+            sqliteConnection.DataSource =
+                Path.Combine(builder.Environment.ContentRootPath, sqliteConnection.DataSource);
+        }
+
+        Console.WriteLine($"[db] sqlite = {sqliteConnection.DataSource}");
+        builder.Services.AddDbContext<KeKeContext>(options => options.UseSqlite(sqliteConnection.ToString()));
 
         // ── 鉴权开关 ──
         // Auth:Enable = false（本地版)
@@ -94,6 +110,18 @@ public class Program
         });
 
         var app = builder.Build();
+
+        // ── 建库 / 迁移 ──
+        // SQLite 是文件库，没有 DBA 会在部署后去跑 `dotnet ef database update`：
+        // 启动时就把库对齐到最新迁移，库文件不存在则连带建表 + 灌种子数据（HasData）。
+        // journal_mode=WAL 是写在库头里的持久开关（重复执行无害），
+        // 它让读请求不再被写事务挡住 —— 默认的 delete 模式下并发一写读就互相卡。
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<KeKeContext>();
+            db.Database.Migrate();
+            db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;");
+        }
 
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment()) app.MapOpenApi();
