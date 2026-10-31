@@ -1,7 +1,8 @@
-from flask import Flask
+import os
 
 from Controller.ordinary_chat import ordinary_chat_bp
 from Controller.pre_person import pre_person_bp
+from flask import Flask
 
 
 def create_app() -> Flask:
@@ -13,6 +14,8 @@ def create_app() -> Flask:
 
 app = create_app()
 
+# 端口：桌面壳用 PORT 环境变量传进来（它动态挑的空闲端口），没传就用开发默认 10086
+port = int(os.environ.get("PORT", 10086))
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10086, debug=True)
+if __name__ == "__main__":
+    app.run(host="127.0.0.1", port=port, debug=False)

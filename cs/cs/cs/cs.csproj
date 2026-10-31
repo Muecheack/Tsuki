@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -27,7 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Remove="Services\.TokenService.cs.reasonix-tx-1787477401468426100-ef3b47c5-2.bak"/>
+        <Content Include="Resource\**" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
 </Project>

@@ -1,5 +1,9 @@
 import axios from 'axios'
 
+// 后端基址：由 Electron 主进程在启动时通过 preload 注入（打包后端口是动态的，不能写死）。
+// 不在 Electron 里跑（比如直接用浏览器打开调试页）时回退到开发用的默认地址。
+const API_BASE = window.api?.apiBase ?? 'http://localhost:5108'
+
 // 后端返回的业务错误（携带 code，便于前端区分"用户已存在"等场景）
 export class ApiError extends Error {
   constructor(
@@ -67,9 +71,8 @@ export async function sendUserInfoAsync(
   call: string,
   apiKey: string
 ): Promise<RegisterReply['data']> {
-  // TODO: 这里加上后端地址
   try {
-    const reply = await axios.post<RegisterReply>('http://localhost:5108/api/Auth/register', {
+    const reply = await axios.post<RegisterReply>(`${API_BASE}/api/Auth/register`, {
       name,
       gender,
       call,
@@ -103,7 +106,7 @@ export async function sendChatMessageAsync(
   // 查本地有没有sessionId
   const sessionId = localStorage.getItem(`sessionId_${aiName}`)
   try {
-    const reply = await axios.post<ChatReply>('http://localhost:5108/api/Chat/chat1', {
+    const reply = await axios.post<ChatReply>(`${API_BASE}/api/Chat/chat1`, {
       userName,
       sessionId: sessionId ? Number(sessionId) : null,
       type,
@@ -143,15 +146,14 @@ export async function preAiPerson(
   userName: string,
   aiName: string
 ): Promise<[string, string[], string]> {
-  const baseUrl = 'http://localhost:5108'
   try {
-    const reply = await axios.post<PrepersonReply>(`${baseUrl}/api/PrePerson/preperson1`, {
+    const reply = await axios.post<PrepersonReply>(`${API_BASE}/api/PrePerson/preperson1`, {
       userName,
       aiName
     })
     const aiReply = reply.data.data.reply
     const selectedTags = reply.data.data.selected.tags
-    const avatarUrl = `${baseUrl}/${reply.data.data.selected.avatarUrl}`
+    const avatarUrl = `${API_BASE}/${reply.data.data.selected.avatarUrl}`
     return [aiReply, selectedTags, avatarUrl]
     // {
     //    reply: ...,
@@ -182,7 +184,7 @@ export async function applyFriendAsync(
 ) {
   try {
     const responst = await axios.post<ApplyFriendReply>(
-      'http://localhost:5108/api/ApplyFriend/apply',
+      `${API_BASE}/api/ApplyFriend/apply`,
       {
         tags,
         avatarUrl,
@@ -250,7 +252,7 @@ export async function uploadFileAsync(aiName: string, userName: string, file: Fi
   try {
     // 不要手动设置 Content-Type：浏览器会给 multipart 补上 boundary，手写反而会缺 boundary 被后端拒
     const reply = await axios.post<UploadFileReply>(
-      'http://localhost:5108/api/File/file1',
+      `${API_BASE}/api/File/file1`,
       formData
     )
     const replyCode = reply.data.code

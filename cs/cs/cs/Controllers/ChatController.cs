@@ -10,11 +10,13 @@ public class ChatController : ControllerBase
 {
     private readonly DbActions _dbAction;
     private readonly SendToAi _sendToAi;
+    private readonly IConfiguration _config;
 
-    public ChatController(DbActions dbAction, SendToAi sendToAi)
+    public ChatController(DbActions dbAction, SendToAi sendToAi, IConfiguration config)
     {
         _dbAction = dbAction;
         _sendToAi = sendToAi;
+        _config = config;
     }
 
     [HttpPost("chat1")] // api/Chat/chat1
@@ -26,6 +28,10 @@ public class ChatController : ControllerBase
         var content = chat.message;
         var type = chat.type;
         var currentSessionId = chat.sessionId;
+        
+        // AI 服务基址：开发默认本机 10086；打包后由 Electron 主进程用环境变量 Address__Pyai
+        // 指到它动态挑出来的端口。基址和路径分开配，聊天和预人设共用一个基址。
+        var aiUrl = (_config["Address:Pyai"] ?? "http://127.0.0.1:10086").TrimEnd('/') + "/api/ai";
 
         // 拿userId
         var safeGetId = _dbAction.WithExistenceCheck(_dbAction.UserExitAsync)(_dbAction.GetUserId);
@@ -45,8 +51,6 @@ public class ChatController : ControllerBase
                     // 保存消息
                     await SaveUserMessageAsync(sessionId, uid, content, type);
                     // 扔给ai
-                    // TODO: 到时候上AI端看一眼真实路径再改
-                    string aiUrl = "http://127.0.0.1:10086/api/ai";
                     var history = await _dbAction.GetChatHistoryAsync(sessionId);
                     var payload = await _dbAction.MapRoleContent(sessionId, uid, userName, history, apiKey);
                     var reply   = await _sendToAi.SendAiAsync(aiUrl, payload);
@@ -95,7 +99,6 @@ public class ChatController : ControllerBase
                 // 保存消息
                 await SaveUserMessageAsync(csid, uid, content, type);
                 // 扔给ai
-                string aiUrl = "http://127.0.0.1:10086/api/ai";
                 var history = await _dbAction.GetChatHistoryAsync(csid);
                 var payload = await _dbAction.MapRoleContent(csid, uid, userName, history, apiKey);
                 var reply   = await _sendToAi.SendAiAsync(aiUrl, payload);

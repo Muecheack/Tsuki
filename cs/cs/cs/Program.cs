@@ -126,7 +126,8 @@ public class Program
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
-        app.UseHttpsRedirection();
+        // 注：不再需要 app.UseHttpsRedirection()。桌面壳拉起 exe 时只监听 127.0.0.1 的 http，
+        // 没有 https 端口可跳，留着只会每次启动刷一条 "Failed to determine the https port" 警告。
 
         app.UseCors("dev"); // 跨域放行，必须在 UseAuthentication 之前
 

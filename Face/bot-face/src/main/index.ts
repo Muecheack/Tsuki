@@ -3,6 +3,10 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
+// 后端基址。阶段 A 里它来自环境变量或默认值（和后端的 launchSettings 一致）；
+// 阶段 C 写 supervisor 时把这里换成"动态挑出来的空闲端口"即可，下面的传值链路不用动。
+const API_BASE = process.env['TSUKI_API_BASE'] ?? 'http://localhost:5108'
+
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
@@ -16,7 +20,9 @@ function createWindow(): void {
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
-      contextIsolation: true
+      contextIsolation: true,
+      // 渲染进程看不到主进程的变量，地址得这样传过去：main → 启动参数 → preload → window.api.apiBase
+      additionalArguments: [`--api-base=${API_BASE}`]
     }
   })
 

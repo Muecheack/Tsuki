@@ -1,6 +1,7 @@
-﻿using cs.Core;
+using cs.Core;
 using cs.Shell;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace cs.Controllers;
 
@@ -11,12 +12,15 @@ public class PrePersonController : ControllerBase
     private readonly DbIO _dbIO;
     private readonly HttpIO _httpIO;
     private readonly ILogger<PrePersonController> _logger;
+    /// AI 服务预人设接口地址，基址来自 Address:Pyai（打包后由 Electron 用 Address__Pyai 覆盖）
+    private readonly string _aiPreUrl;
 
-    public PrePersonController(DbIO dbIO, HttpIO httpIO, ILogger<PrePersonController> logger)
+    public PrePersonController(DbIO dbIO, HttpIO httpIO, ILogger<PrePersonController> logger, IConfiguration config)
     {
         _dbIO = dbIO;
         _httpIO = httpIO;
         _logger = logger;
+        _aiPreUrl = (config["Address:Pyai"] ?? "http://127.0.0.1:10086").TrimEnd('/') + "/api/pre";
     }
 
     [HttpPost("preperson1")] // api/PrePerson/perperson1
@@ -45,7 +49,7 @@ public class PrePersonController : ControllerBase
                     uid, tags.Count, avatars.Count);
 
                 var payload = SwitchFormat.FormatDict(userName, aiName, gen, call, tags, avatars, apiK);
-                var reply = await _httpIO.ToAi(payload, "http://127.0.0.1:10086/api/pre");
+                var reply = await _httpIO.ToAi(payload, _aiPreUrl);
                 _logger.LogInformation(
                     "AI 预人设返回 avatarId={AvatarId} selectedTags={SelectedTags}",
                     reply.selected.avatarId, string.Join(", ", reply.selected.tags));
