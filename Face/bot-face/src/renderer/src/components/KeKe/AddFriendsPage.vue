@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, getCurrentInstance, computed } from 'vue';
-import nekoHead from '@/assets/avator/neko_head.png'
 import { t } from '@/i18n';
 import { useChatStore } from '@/stores/chat';
 import { createMessageBar } from '@creatorsn/vfluent3';

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import nekoHead from '@/assets/avator/neko_head.png'
 
 // 官方账号的稳定标识（不随语言变：会话查找 / sessionId key / 判断都用它）
