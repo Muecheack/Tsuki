@@ -133,11 +133,9 @@ htmlcov/
 
 # ───────────── 本项目特有：运行期生成物与临时文件 ─────────────
 # pyai 的提示词文件是运行时按请求生成、每次覆盖重写的中间产物
-# （由 Shell/file_IO.py 的 to_promp_file_pre / to_promp_file_normal 写出）。
-# 目前它们是入库的，如果你想改成不入库，取消下面两行的注释并执行
-#   git rm -r --cached pyai/prmp
-# /pyai/prmp/prmp_chat.txt
-# /pyai/prmp/prmp_pre.txt
+# （由 Shell/file_IO.py 的 to_promp_file_pre / to_promp_file_normal 写出），
+# 里面还会带上当前用户的昵称/性别/人设，属于运行期数据而不是源码，不进仓库。
+/pyai/prmp/*.txt
 
 # 根目录临时草稿 / 测试文件
 /测试文件.txt
