@@ -1,12 +1,7 @@
-import os
-from openai import OpenAI
-
-
-# TODO: 未来再接收个bool值, 按照bool值选择提示词文件
 def get_ai_reply(session_list: list, api_key: str) -> str:
+    from openai import OpenAI
 
     client = OpenAI(
-        # TODO: 未来这个换成前端传来的api
         api_key=api_key,
         base_url="https://api.deepseek.com",
     )
@@ -14,7 +9,6 @@ def get_ai_reply(session_list: list, api_key: str) -> str:
     response = client.chat.completions.create(
         model="deepseek-v4-pro",
         messages=[
-            # TODO: 未来把提示词换成文件读取
             # TODO: 未来在提示词文件里加上把逗号换成分割符号,使ai按照分隔符回复
             # TODO: 未来新增提示词文件用于自动化点赞(格式化输出模板)
             {"role": "system", "content": "You are a helpful assistant"},
