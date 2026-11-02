@@ -16,8 +16,6 @@ const userName = user.nickname || '';
 // 当前好友名字
 const prop = defineProps<{ name: string }>();
 
-console.log(`当前好友名:${prop.name}`)
-
 // 当前选中的好友
 const selected = computed(() => chat.friends.find(x => x.name === prop.name));
 // 当前会话的 sessionId：需要时用 selected.value?.sessionId（store 里就存着，不用从父组件传）
@@ -41,16 +39,6 @@ const chatReady = computed(() => prop.name !== chat.officialId || !!draftData.va
  ''会触发alt才用||
  注：必须定义在下面的 watch 之前 —— watch 开了 immediate，setup 期间就会同步执行回调*/
 const cardAvator = computed(() => avatarUrl.value || nekoHead)
-
-// 调试：draft 变化时打印读到的内容 + 最终给卡片的头像 URL（排查 alt 占位图用）
-watch(
-    () => chat.draft,
-    (v) => {
-        console.log('[draft] ChatPage 读到:', JSON.parse(JSON.stringify(v)))
-        console.log('[draft] cardAvator =', cardAvator.value)
-    },
-    { deep: true, immediate: true }
-)
 
 function addTags(tags: string[]) {
     chat.personTages = (tags ?? []).map(x => ({ text: x, type: x }));

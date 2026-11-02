@@ -58,9 +58,6 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
-
   // 打开资源管理器相关
   ipcMain.handle('select-file', async () => {
     const result = await dialog.showOpenDialog({

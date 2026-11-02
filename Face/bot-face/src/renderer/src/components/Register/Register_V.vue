@@ -178,7 +178,6 @@ const register = async () => {
         try {
             const [aiReply, tags, avatarUrl] = await preAiPerson(nameRegister.value.trim(), AI_PERSON_NAME)
             chat.setDraft([aiReply, tags, avatarUrl])
-            console.log('[draft] 注册时预发人设:', { aiReply, tags, avatarUrl })
         } catch (e) {
             console.error('[draft] 预发人设失败（不影响注册）:', e)
         }

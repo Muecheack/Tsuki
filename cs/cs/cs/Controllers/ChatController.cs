@@ -54,9 +54,6 @@ public class ChatController : ControllerBase
                     var history = await _dbAction.GetChatHistoryAsync(sessionId);
                     var payload = await _dbAction.MapRoleContent(sessionId, uid, userName, history, apiKey);
                     var reply   = await _sendToAi.SendAiAsync(aiUrl, payload);
-                    
-                    Console.WriteLine($"收到回复:{reply.message}, ai名字:{reply.aiName}");
-                    Console.WriteLine($"用户名字:{userName}");
 
                     // AI走相同路径(存数据库, 返回给前端)
                     if (reply.sessionId is { } asid)
@@ -102,9 +99,7 @@ public class ChatController : ControllerBase
                 var history = await _dbAction.GetChatHistoryAsync(csid);
                 var payload = await _dbAction.MapRoleContent(csid, uid, userName, history, apiKey);
                 var reply   = await _sendToAi.SendAiAsync(aiUrl, payload);
-                
-                Console.WriteLine($"收到回复:{reply.message}, ai名字:{reply.aiName}");
-                Console.WriteLine($"用户:{userName}");
+
                 // AI走相同路径(存数据库, 返回给前端)
                 var aiId = await ResolveAiIdAsync(reply.aiName, csid, uid);
                 await _dbAction.SaveChatInMessageAsync(csid, aiId,
@@ -161,7 +156,6 @@ public class ChatController : ControllerBase
         }
 
         // ③ 兜底新建, 并拉进会话
-        Console.WriteLine($"[warn] session {sessionId} 里没有 AI 参与者, 按名字 \"{aiNameFromAi}\" 新建一个");
         var createdId = await _dbAction.AddAIInDbAsync(aiNameFromAi);
         await _dbAction.AddUserInSessionParticipantAsync(createdId, sessionId);
         return createdId;

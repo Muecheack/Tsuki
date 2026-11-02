@@ -150,7 +150,6 @@ public class DbActions
         if (ai is null)
         {
             // 会话里压根没有 AI: 给个空人设, 因为 pyai 端是直接 persona.get(...), 给 null 会在那边崩
-            Console.WriteLine($"[warn] session {sessionId} 里没找到 AI 参与者, 回退空人设");
             return new AiInfo(
                 string.Empty, string.Empty,
                 user?.CallName ?? string.Empty, user?.Gender ?? string.Empty,

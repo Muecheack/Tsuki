@@ -84,8 +84,6 @@ def pre_person() -> Response:
         pre_history, prmp
     )
 
-    print(f"完整历史消息, 预人设:{pre_all_history}")
-
     ai_reply: str = ai_service.get_ai_reply(pre_all_history, api_key)
     logger.info("AI 回复成功: 字符数=%s", len(ai_reply or ""))
     logger.debug("AI 回复内容: %s", ai_reply)

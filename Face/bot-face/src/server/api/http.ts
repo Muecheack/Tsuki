@@ -80,7 +80,6 @@ export async function sendUserInfoAsync(
     })
     // 后端成功约定 code = 200
     if (reply.data.code !== 200) {
-      console.log(`回消息失败:${reply.data.message}`)
       throw new ApiError(reply.data.code, reply.data.message)
     }
     return reply.data.data
@@ -116,10 +115,7 @@ export async function sendChatMessageAsync(
     const replyMessage = reply.data.data.message
     const replySessionId = reply.data.data.sessionId as any
 
-    console.log(`收到回复:${reply.data.data.message}`)
-
     if (reply.data.code !== 200) {
-      console.log(`回消息失败:${reply.data.message}`)
       throw new ApiError(reply.data.code, reply.data.message)
     }
     if (!sessionId) {
@@ -196,7 +192,6 @@ export async function applyFriendAsync(
     const sessionId = responst.data.data.sessionId
     localStorage.setItem(`sessionId_${aiName}`, sessionId?.toString())
     if (responst.data.code !== 200) {
-      console.log(`回消息失败:${responst.data.message}`)
       throw new ApiError(responst.data.code, responst.data.message)
     }
     // code 给调用方判断成败；sessionId 给调用方绑到联系人上（好友对象里也留一份）
@@ -241,14 +236,6 @@ export async function uploadFileAsync(aiName: string, userName: string, file: Fi
   formData.append('aiName', aiName)
   formData.append('userName', userName)
   formData.append('sessionId', sessionId ?? '')
-  // 排查用：真发出去的是什么。aiName/userName 为空时后端只会回「field is required」，很难反查
-  console.log('[upload] 发送:', {
-    aiName,
-    userName,
-    sessionId,
-    file: file.name,
-    size: file.size
-  })
   try {
     // 不要手动设置 Content-Type：浏览器会给 multipart 补上 boundary，手写反而会缺 boundary 被后端拒
     const reply = await axios.post<UploadFileReply>(

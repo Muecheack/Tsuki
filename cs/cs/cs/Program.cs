@@ -37,7 +37,6 @@ public class Program
                 Path.Combine(builder.Environment.ContentRootPath, sqliteConnection.DataSource);
         }
 
-        Console.WriteLine($"[db] sqlite = {sqliteConnection.DataSource}");
         builder.Services.AddDbContext<KeKeContext>(options => options.UseSqlite(sqliteConnection.ToString()));
 
         // ── 鉴权开关 ──
@@ -47,7 +46,6 @@ public class Program
         // 键名必须和 appsettings.json 的嵌套结构对上 —— "Auth": { "Enable": ... } → "Auth:Enable"。
         // 环境变量覆盖用双下划线：Auth__Enable / Jwt__Key（写成 "Auth: Enable"（带空格）是取不到的）。
         var authEnable = builder.Configuration.GetValue<bool>("Auth:Enable");
-        Console.WriteLine($"[auth] enabled={authEnable}");
 
         if (authEnable)
         {

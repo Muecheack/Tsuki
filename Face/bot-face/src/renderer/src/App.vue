@@ -21,7 +21,6 @@ onMounted(async () => {
         // 注：await 只影响这个函数自身，不阻塞页面渲染
         const [aiReply, tags, avatarUrl] = await preAiPerson(userName, AI_PERSON_NAME)
         chat.setDraft([aiReply, tags, avatarUrl])
-        console.log('[draft] 启动预发人设:', { aiReply, tags, avatarUrl })
     } catch (e) {
         // 失败不影响使用（卡片头像会走 nekoHead 兜底）
         console.error('[draft] 启动预发人设失败（不影响启动）:', e)

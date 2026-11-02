@@ -1,6 +1,5 @@
 import json
 import logging
-from pprint import pprint
 
 import ai_service
 from Core import parse
@@ -74,9 +73,6 @@ def ordinary_chat() -> Response:
         json.dumps(data, ensure_ascii=False, indent=4, default=str),
     )
 
-    print("收到的完整json:")
-    pprint(data, indent=4, sort_dicts=False)
-
     to_promp_file_normal(
         ai_name, name, user_gender, user_call_name, avatar_description, ai_tags
     )
@@ -91,10 +87,6 @@ def ordinary_chat() -> Response:
     response: str = ai_service.get_ai_reply(history, api_key)
     logger.info("AI 回复成功: sessionId=%s, 字符数=%s", sessionId, len(response or ""))
     logger.debug("AI 回复内容: %s", response)
-
-    print(f"完整历史消息, 正常聊天:{history}")
-
-    print(f"回复:{response}")
 
     # TODO: 未来把回复列表返回
     logger.info("返回常规聊天响应: sessionId=%s, aiName=%s", sessionId, name)
