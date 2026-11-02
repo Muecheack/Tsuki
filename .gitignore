@@ -148,6 +148,12 @@ htmlcov/
 # TsukiAi.spec 是构建配方，必须入库）
 pyai/build/
 
+# dotnet publish 的暂存目录（阶段 C/D：产物会被 electron-builder 复制进安装包，
+# 本身是可删可再生的编译输出，不进仓库）。
+# 必须根锚定成 /build/ —— 写成 build/ 会连 Face/bot-face/build/ 一起忽略掉，
+# 而那个目录里放的是图标、entitlements 等【要入库的源资源】。
+/build/
+
 # ────────────────── SQLite 运行期数据库（cs 后端）──────────────────
 # 库文件由 Program.cs 里的 Database.Migrate() 在启动时生成，
 # 内容是本机用户数据（用户、会话、消息、apiKey），必须当用户数据看待，不进仓库。
