@@ -1,5 +1,5 @@
-appId: com.electron.app
-productName: bot-face
+appId: com.muecheack.tsuki
+productName: Tsuki
 directories:
   buildResources: build
 files:
@@ -12,9 +12,9 @@ files:
 asarUnpack:
   - resources/**
 win:
-  executableName: bot-face
+  executableName: Tsuki
 nsis:
-  artifactName: ${name}-${version}-setup.${ext}
+  artifactName: ${productName}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
