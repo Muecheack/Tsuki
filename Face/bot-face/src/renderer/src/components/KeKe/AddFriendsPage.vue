@@ -90,8 +90,12 @@ async function addFriend(name) {
     if (ok) addedName.value = name
 
     // 全局提示
+    // ok = 这次申请没出错（isExist 为真时代表"本来就是好友"，没有申请这一步，也算 ok）
+    // 三种情况要分开：已是好友 / 新好友添加成功 / 申请失败
     createMessageBar(
-        ok ? t('addFriend.alreadyFriend') : t('addFriend.addSuccess'),
+        ok
+            ? (isExist ? t('addFriend.alreadyFriend') : t('addFriend.addSuccess'))
+            : t('addFriend.applyFail'),
         { status: 'default', once: true, autoClose: 2000 },
         appContext
     )
