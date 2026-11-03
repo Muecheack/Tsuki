@@ -8,9 +8,9 @@
 4. 消息通知(开发中): 一段时间不理睬的话会主动向您发消息, 并发送系统提示, 次数限制, 不会导致骚扰.
 
 ## 一些界面 ##
-![界面1](imgs/20261103201443.png)
-![界面2](imgs/20261103201515.png)
-![界面3](imgs/20261103201531.png)
+![界面1](https://cdn.jsdelivr.net/gh/Muecheack/Tsuki@main/imgs/20261103201443.png)
+![界面2](https://cdn.jsdelivr.net/gh/Muecheack/Tsuki@main/imgs/20261103201515.png)
+![界面3](https://cdn.jsdelivr.net/gh/Muecheack/Tsuki@main/imgs/20261103201531.png)
 
 [ 快速安装(当前仅为alpha版): ](aaa)
 

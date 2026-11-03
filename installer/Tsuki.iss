@@ -19,7 +19,9 @@
 ; ─────────────────────────────────────────────────────────────────────────────
 
 #ifndef MyAppVersion
-  #define MyAppVersion "0.0.0-dev"
+  ; 兜底值：从 Inno 的 IDE 里直接按 F9 编译时用（命令行 ISCC 会用 /D 覆盖）。
+  ; 注意和 Face\bot-face\package.json 的 version 保持一致，改版本时两处一起改。
+  #define MyAppVersion "0.0.1"
 #endif
 
 #define MyAppName "Tsuki"

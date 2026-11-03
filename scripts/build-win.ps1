@@ -151,15 +151,35 @@ if (-not $SkipInstaller) {
     Write-Step '5/5 生成安装器（Inno Setup）'
 
     $isccPath = $Iscc
+    # 1) 先查注册表：Inno 允许装到任意目录（比如 D:\innosetup\Inno Setup 7\），
+    #    硬编码 Program Files 会漏掉。卸载信息里的 InstallLocation 才是准的。
+    if (-not $isccPath) {
+        $isccPath = @(
+            'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall',
+            'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall',
+            'HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall'
+        ) |
+            ForEach-Object { Get-ChildItem $_ -ErrorAction SilentlyContinue } |
+            ForEach-Object { Get-ItemProperty $_.PSPath -ErrorAction SilentlyContinue } |
+            Where-Object { $_.DisplayName -like 'Inno Setup*' -and $_.InstallLocation } |
+            ForEach-Object { Join-Path $_.InstallLocation 'ISCC.exe' } |
+            Where-Object { Test-Path $_ } |
+            Select-Object -First 1
+    }
+    # 2) 兜底：默认安装路径（6 / 7 都试）
     if (-not $isccPath) {
         foreach ($candidate in @(
+                "${env:ProgramFiles(x86)}\Inno Setup 7\ISCC.exe",
+                "$env:ProgramFiles\Inno Setup 7\ISCC.exe",
                 "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
                 "$env:ProgramFiles\Inno Setup 6\ISCC.exe",
+                "$env:LOCALAPPDATA\Programs\Inno Setup 7\ISCC.exe",
                 "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe"
             )) {
             if (Test-Path $candidate) { $isccPath = $candidate; break }
         }
     }
+    # 3) 最后看 PATH
     if (-not $isccPath) {
         $cmd = Get-Command 'ISCC.exe' -ErrorAction SilentlyContinue
         if ($cmd) { $isccPath = $cmd.Source }
