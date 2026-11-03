@@ -1,7 +1,9 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import icon from '../../resources/icon.png?asset'
+// Linux 下的窗口图标。文件名要跟 resources\ 里的实际文件一致（不是模板默认的 icon.png），
+// 换图标时保持这个名字或同步改这行，否则 vite 构建会报"找不到模块"。
+import icon from '../../resources/tsuki_ic_pn.png?asset'
 import { startServices, userPaths, type RunningServices } from './services'
 
 /**
@@ -41,8 +43,8 @@ function createWindow(): void {
     minHeight: 570,
     show: false,
     autoHideMenuBar: true,
-    // TODO(图标占位)：换成自己的图标后这里不用改，打包时 electron-builder 会用
-    // Face/bot-face/build/icon.ico(win) / icon.icns(mac)。当前是 electron-vite 自带占位图。
+    // 窗口图标只在 Linux 用到；Windows/macOS 的图标由 electron-builder 写进 exe，
+    // 安装器图标由 Inno 从 installer\Tsuki.iss 的 SetupIconFile 带。
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

@@ -1,5 +1,10 @@
 appId: com.muecheack.tsuki
 productName: Tsuki
+# 只保留中英文的 Chromium 语言包。默认会带 50 多种语言（约 44MB），
+# 这个软件只有中/英界面，砍掉能省 40MB+。
+electronLanguages:
+  - zh-CN
+  - en-US
 directories:
   buildResources: build
 files:
@@ -11,13 +16,32 @@ files:
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
 asarUnpack:
   - resources/**
+# ── 把两个 sidecar 复制进 resources/ ──
+# 装完之后 process.resourcesPath 指向 <安装目录>\resources，supervisor 就在这下面找：
+#   resources\backend\cs.exe      ← 来自仓库根的 build\backend（dotnet publish 产物）
+#   resources\ai\TsukiAi.exe      ← 来自 pyai\dist\TsukiAi（PyInstaller 产物）
+# 路径是相对本文件所在目录（Face/bot-face）的。
+extraResources:
+  - from: ../../build/backend
+    to: backend
+  - from: ../../pyai/dist/TsukiAi
+    to: ai
 win:
   executableName: Tsuki
-nsis:
-  artifactName: ${productName}-${version}-setup.${ext}
-  shortcutName: ${productName}
-  uninstallDisplayName: ${productName}
-  createDesktopShortcut: always
+  # exe 的图标。默认会去 build\icon.ico 找，我们的图标叫 tsuki_ico.ico，所以显式指定
+  # （要求 .ico 里至少有一张 256x256，当前满足）。换图标时保持这个名字或同步改这里。
+  icon: build/tsuki_ico.ico
+# ── 安装器由 Inno Setup 负责，这里不再产出 NSIS ──
+# 所以打包命令是 `electron-builder --win --dir`：只生成 dist\win-unpacked\，
+# 再由 installer\Tsuki.iss 把它压成安装包（见 scripts\build-win.ps1）。
+# 想回退到 NSIS 的话，把下面这段注释打开、并把 --dir 去掉即可。
+# nsis:
+#   artifactName: ${productName}-${version}-setup.${ext}
+#   shortcutName: ${productName}
+#   uninstallDisplayName: ${productName}
+#   createDesktopShortcut: always
+#   oneClick: true
+#   perMachine: false
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
