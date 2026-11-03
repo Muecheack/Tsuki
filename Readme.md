@@ -12,7 +12,6 @@
 ![界面2](https://cdn.jsdelivr.net/gh/Muecheack/Tsuki@main/imgs/20261103201515.png)
 ![界面3](https://cdn.jsdelivr.net/gh/Muecheack/Tsuki@main/imgs/20261103201531.png)
 
-[ 快速安装(当前仅为alpha版): ]([aaa](https://github.com/Muecheack/Tsuki/releases/latest
-)
+[ 快速安装(当前仅为alpha版): ](https://github.com/Muecheack/Tsuki/releases/latest)
 
 
