@@ -12,7 +12,9 @@
 ![界面2](https://cdn.jsdelivr.net/gh/Muecheack/Tsuki@main/imgs/20261103201515.png)
 ![界面3](https://cdn.jsdelivr.net/gh/Muecheack/Tsuki@main/imgs/20261103201531.png)
 
-[ 快速安装(当前仅为alpha版): ](https://github.com/Muecheack/Tsuki/releases/latest)
+## 快速使用 ##
+前往[Release](https://github.com/Muecheack/Tsuki/releases/latest)
+安装最新版
 
 ## 许可与素材 ##
 
@@ -20,5 +22,3 @@
 - **图片素材不随代码授权**：头像库与界面背景多为开发阶段从网络收集的占位资源，
   授权状态与替换计划见 [ASSETS.md](ASSETS.md)。二次开发请自行替换这些图片
 - 图片若涉及侵权，请联系 1704156528@qq.com，会立即移除
-
-
