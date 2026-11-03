@@ -12,6 +12,8 @@
 ![界面2](https://cdn.jsdelivr.net/gh/Muecheack/Tsuki@main/imgs/20261103201515.png)
 ![界面3](https://cdn.jsdelivr.net/gh/Muecheack/Tsuki@main/imgs/20261103201531.png)
 
-[ 快速使用: ](https://github.com/Muecheack/Tsuki/releases/latest)
+## 快速使用 ##
+前往[Release](https://github.com/Muecheack/Tsuki/releases/latest)
+安装最新版
 
 
