@@ -139,8 +139,6 @@ public class ChatController : ControllerBase
     }
 
     /// AI 回完话之后: 决定这条 AI 消息记在哪个用户头上。
-    /// 坑: pyai 回的 aiName 其实是"会话字典的 key", 也就是用户名(见 pyai/Controller/ordinary_chat.py 的 "aiName": name),
-    /// 拿它直接 AddAIInDbAsync 就会造出一堆叫用户名/重名的空壳 AI —— 数据库里 keke 已经堆了 40 条。
     /// 所以顺序是: ① 会话里已有的那位 AI ② 按名字找(排除真人自己) ③ 真没有才新建。
     private async Task<int> ResolveAiIdAsync(string aiNameFromAi, int sessionId, int userId)
     {

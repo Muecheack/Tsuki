@@ -8,50 +8,56 @@
                 class="flex flex-col rounded-2xl py-8 px-50 justify-center items-center gap-2 bg-white/70 border shadow border-white/30">
 
                 <!-- 猫猫头像 -->
-                <div class="w-12 h-12 overflow-hidden rounded-full">
+                <div class="w-18 h-18 overflow-hidden rounded-full">
                     <img :src="nekoHeadUrl" alt="avatar" class="w-full h-full object-cover object-center" />
                 </div>
 
                 <span class="text-[#1A1A1A] text-2xl">{{ t('register.title') }}</span>
                 <span class="text-red-300 text-sm">{{ t('register.subtitleBefore') }}<span
-                        class="font-serif italic">KeKe</span>{{ t('register.subtitleAfter') }}</span>
+                        class="font-serif italic">Tsuki</span>{{ t('register.subtitleAfter') }}</span>
 
                 <!-- 性别：圆角方框单选卡，横向排列；默认男孩 -->
                 <div class="flex flex-col gap-1 w-full">
-                    <label class="text-[#1A1A1A] text-sm">{{ t('register.gender') }}</label>
-                    <div class="flex flex-row justify-between items-center">
+                    <label class="text-[#1A1A1A] text-xs">{{ t('register.gender') }}</label>
+                    <div class="flex flex-row justify-between items-center gap-1">
+                        <!-- 男 -->
                         <div @click="gender = 'boy'"
                             class="px-4 py-1.5 rounded-md border cursor-pointer select-none transition-colors"
-                            :class="gender === 'boy' ? 'bg-blue-200/70 border-blue-300' : 'bg-white/50 border-white/30 hover:bg-white/70'">
+                            :class="gender === 'boy' ? 'bg-blue-300/50 border-blue-400' : 'bg-blue-400/20 border-white/30 hover:bg-white/70'">
                             {{ t('register.boy') }}
                         </div>
-                        <span class="text-gray-700">{{ t('register.canNotSay') }}</span>
+                        <!-- 女 -->
                         <div @click="gender = 'girl'"
                             class="px-4 py-1.5 rounded-md border cursor-pointer select-none transition-colors"
-                            :class="gender === 'girl' ? 'bg-pink-200/70 border-pink-300' : 'bg-white/50 border-white/30 hover:bg-white/70'">
+                            :class="gender === 'girl' ? 'bg-pink-300/50 border-pink-400' : 'bg-pink-400/20 border-white/30 hover:bg-white/70'">
                             {{ t('register.girl') }}
                         </div>
+
                     </div>
                 </div>
 
                 <!-- 昵称 -->
                 <div class="flex flex-col gap-1 w-full">
-                    <label class="text-[#1A1A1A] text-sm">{{ t('register.nickname') }}</label>
+                    <label class="text-[#1A1A1A] text-xs">{{ t('register.nickname') }}</label>
                     <fv-text-box :placeholder="t('register.nicknamePlaceholder')" v-model="nameRegister"
                         class="w-full text-gray-500" />
                     <span v-if="nameIsNullOrWhiteSpace" class="text-red-300 text-xs">{{ t('register.nicknameEmpty')
-                    }}</span>
+                        }}</span>
                     <span v-if="userExist" class="text-red-300 text-xs">{{ t('register.userExist') }}</span>
                 </div>
 
-
-
                 <!-- 称呼：下拉框，选项随性别切换（男孩→哥哥/正太；女孩→姐姐/萝莉） -->
                 <div class="flex flex-col gap-1 w-full">
-                    <label class="text-[#1A1A1A] text-sm">{{ t('register.call') }}</label>
+                    <label class="text-[#1A1A1A] text-xs">{{ t('register.call') }}</label>
                     <fv-combobox v-model="callValue" :options="callOptions" :placeholder="t('register.placeholder')"
                         class="w-full" />
                     <span v-if="callValueNull" class="text-xs text-red-300">{{ t('register.callValueNull') }}</span>
+                </div>
+
+                <div>
+                    <label class="text-[#1A1A1A] text-xs">{{ t('register.modelSelect') }}</label>
+                    <fv-combobox v-model="model" :options="models" :placeholder="t('register.modelSelect')"
+                        class="w-full" />
                 </div>
 
                 <!-- api_key输入框 -->
@@ -67,7 +73,7 @@
                 <!-- 点一次就禁用（submitting）：防重复提交；请求结束（失败）后恢复可点，成功则跳走 -->
                 <fv-button :boderRadius="2" :disabled="submitting" @click="register"
                     :class="['text-[#1A1A1A]', submitting ? 'cursor-not-allowed opacity-60' : 'cursor-pointer']">{{
-                    t('register.submit') }}</fv-button>
+                        t('register.submit') }}</fv-button>
 
 
             </div>
@@ -88,7 +94,7 @@
 
 <script setup lang="ts">
 import nekoUrl from '@/assets/neko.png?url'
-import nekoHeadUrl from '@/assets/avator/neko_head.png'
+import nekoHeadUrl from '@/assets/avator/Tsuki_ic_pn.png'
 import { useRouter } from 'vue-router'
 import { ref, computed, watch } from 'vue'
 import { t } from '@/i18n'
@@ -121,6 +127,12 @@ const callOptions = computed(() =>
             { key: 'loli', text: t('register.loli') }
         ]
 ) as any // fv-combobox 的 options 类型推导为 never[]，与 SettingPage 一致用 any 兜底
+
+const model = ref({ key: 'deepseek-v4 flash', text: 'deepseek-v4 flash' })
+const models = computed(() => [
+    { key: 'deepseek-v4 flash', text: 'deepseek-v4 flash' },
+    { key: 'deepseek-v4 pro', text: 'deepseek-v4 pro' },
+]) as any
 
 // 切性别时清掉已选称呼，避免残留上一个性别的选项
 watch(gender, () => {

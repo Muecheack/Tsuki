@@ -23,6 +23,7 @@
     "gender": "Gender",
     "boy": "♂ Boy",
     "girl": "♀ Girl",
+    "modelSelect": "Select Model",
     "call": "Address me as",
     "placeholder": "How old are you~",
     "olderBrother": "Big Brother",

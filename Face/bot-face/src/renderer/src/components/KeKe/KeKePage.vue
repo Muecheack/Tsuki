@@ -11,7 +11,7 @@
 
                 <!-- 顶部文字 -->
                 <div class="flex flex-row justify-between h-11 items-center px-2 border border-b rounded">
-                    <span class="text-sm text-black font-[serif]">KeKe</span>
+                    <span class="text-sm text-black font-[serif]">Tsuki</span>
                     <div class="relative group ">
                         <fv-icon-element value="Zoom" :font-size="17" class="cursor-pointer hover:opacity-50" />
                         <div class="absolute top-full mb-2 left-1/2 -translate-x-3/4 whitespace-nowrap
@@ -26,8 +26,7 @@
                 <TransitionGroup name="bubble" tag="div" class="flex flex-col flex-1 border-white">
 
                     <!-- 装头像和昵称的，拿来循环的卡片 -->
-                    <div v-for="(i, index) in chat.friends" :key="index"
-                        @click="sessionRowClicked(i.name)"
+                    <div v-for="(i, index) in chat.friends" :key="index" @click="sessionRowClicked(i.name)"
                         class="relative flex flex-row gap-4 cursor-pointer items-center justify-between p-4 w-full h-16 hover:bg-gray-200"
                         :class="selectedName === i.name ? 'bg-gray-200' : ''">
 

@@ -165,6 +165,104 @@ namespace cs.Migrations
                             Description = "灰发蓝瞳可爱猫娘少女",
                             Name = "neko_head",
                             Url = "Resource/Avatar/neko_head.png"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Description = "棕发少年, 澄澈青眼, 微微侧头, 唇轻启, 神色懵懂, 双臂交叠, 神情柔和又茫然",
+                            Name = "20200508145507_jlkkh",
+                            Url = "Resource/Avatar/20200508145507_jlkkh.jpg"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Description = "深紫色黑发少年, 浅灰眼眸, 侧脸微转, 唇线紧抿, 神色冷淡, 神情带着疏离感",
+                            Name = "20200509112659_xchjs",
+                            Url = "Resource/Avatar/20200509112659_xchjs.jpg"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Description = "浅灰长发少女, 清透蓝眼眸, 抬手轻捻发丝, 神色柔和, 唇微张, 安静温婉",
+                            Name = "20200510132433_oqlyd",
+                            Url = "Resource/Avatar/20200510132433_oqlyd.jpg"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Description = "白发少年, 澄澈蓝眼睛, 轻托小猫, 脸颊泛红, 眉眼柔和, 带着腼腆欢喜",
+                            Name = "20200601214042_ufuwv",
+                            Url = "Resource/Avatar/20200601214042_ufuwv.jpg"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Description = "白发猫耳少年, 浅蓝眼眸, 手握杯子, 戴口罩, 眼神清冷, 神情淡漠",
+                            Name = "20201219221757_b4b47",
+                            Url = "Resource/Avatar/20201219221757_b4b47.jpg"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Description = "灰发少女, 紫灰眼眸, 抬手轻掩脸颊, 脸颊泛红, 眼神羞怯, 软萌温顺",
+                            Name = "20220212141358_c94d6",
+                            Url = "Resource/Avatar/20220212141358_c94d6.jpeg"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Description = "浅蓝长发少女, 澄澈蓝眸, 微微侧首, 唇轻启, 神色懵懂, 恬静可爱",
+                            Name = "20230123231249_9d8ac.thumb.400_0",
+                            Url = "Resource/Avatar/20230123231249_9d8ac.thumb.400_0.jpeg"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Description = "浅蓝短发少女, 橙红眼眸, 微微抬脸, 唇角轻抿, 神情温柔安静",
+                            Name = "19724921082172288",
+                            Url = "Resource/Avatar/19724921082172288.png"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Description = "青蓝长卷发少女, 紫眸, 一手抿眼, 怀抱小熊玩偶, 单眼轻眨, 娇俏慵懒",
+                            Name = "acgszz",
+                            Url = "Resource/Avatar/acgszz.png"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Description = "薄荷绿长发猫耳少女, 浅绿眼眸, 侧头眨眼, 脸颊泛红, 娇俏灵动",
+                            Name = "green_h_neko",
+                            Url = "Resource/Avatar/green_h_neko.png"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Description = "粉发猫耳少女, 淡紫眼眸, 抬手轻抵唇边, 脸颊泛红, 羞怯温柔",
+                            Name = "huaban-6459710836",
+                            Url = "Resource/Avatar/huaban-6459710836.png"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Description = "金发少女, 橙红眼眸, 比出剪刀手, 单眼眨动, 笑容明媚活泼",
+                            Name = "huaban-6459712303",
+                            Url = "Resource/Avatar/huaban-6459712303.png"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Description = "浅银长发高马尾少女, 深蓝眼眸, 手轻攥衣领, 小嘴微张, 神情是软乎乎的, 充满好奇",
+                            Name = "R-C",
+                            Url = "Resource/Avatar/R-C.jpg"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Description = "粉渐变长发少女, 青绿色眼眸, 裹紧衣袖, 浅浅含笑, 神情温顺软萌",
+                            Name = "scs",
+                            Url = "Resource/Avatar/scs.png"
                         });
                 });
 
@@ -177,7 +275,7 @@ namespace cs.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTime>("SendAt")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("SessionId")
@@ -316,7 +414,7 @@ namespace cs.Migrations
                         new
                         {
                             Id = 14,
-                            TagName = "优柔寡断"
+                            TagName = "选择困难症"
                         },
                         new
                         {
@@ -342,6 +440,61 @@ namespace cs.Migrations
                         {
                             Id = 19,
                             TagName = "中二病"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            TagName = "毒舌"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            TagName = "冷漠"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            TagName = "热情"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            TagName = "病娇"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            TagName = "方言味重"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            TagName = "洋气"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            TagName = "沉稳"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            TagName = "稚气"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            TagName = "猫系人格"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            TagName = "吃货"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            TagName = "夜猫子"
                         });
                 });
 

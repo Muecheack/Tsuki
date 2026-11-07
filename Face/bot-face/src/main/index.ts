@@ -37,10 +37,10 @@ function resolveResRoot(): string {
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 570,
-    minWidth: 900,
-    minHeight: 570,
+    width: 1000,
+    height: 670,
+    minWidth: 1000,
+    minHeight: 670,
     show: false,
     autoHideMenuBar: true,
     // 窗口图标只在 Linux 用到；Windows/macOS 的图标由 electron-builder 写进 exe，

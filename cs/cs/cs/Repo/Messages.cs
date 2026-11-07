@@ -10,7 +10,7 @@ public class Messages
     /// </summary>
     public string? Type  { get; set; }
     public string? Content { get; set; }
-    public  DateTime Date  { get; set; }
+    public  DateTime SendAt  { get; set; }
     public virtual User User { get; set; } = null!;
     public virtual Session Session { get; set; } = null!;
 }

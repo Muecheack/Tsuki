@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 
@@ -135,7 +135,78 @@ public partial class KeKeContext : DbContext
                     Description = "白发蓝瞳慵懒萝莉抱着粉色抱枕困对镜头"
                 },
                 new AvatarUrl
-                    { Id = 18, Name = "neko_head", Url = "Resource/Avatar/neko_head.png", Description = "灰发蓝瞳可爱猫娘少女" }
+                    { Id = 18, Name = "neko_head", Url = "Resource/Avatar/neko_head.png", Description = "灰发蓝瞳可爱猫娘少女" },
+                new AvatarUrl
+                {
+                    Id = 19, Name = "20200508145507_jlkkh", Url = "Resource/Avatar/20200508145507_jlkkh.jpg",
+                    Description = "棕发少年, 澄澈青眼, 微微侧头, 唇轻启, 神色懵懂, 双臂交叠, 神情柔和又茫然"
+                },
+                new AvatarUrl
+                {
+                    Id = 20, Name = "20200509112659_xchjs", Url = "Resource/Avatar/20200509112659_xchjs.jpg",
+                    Description = "深紫色黑发少年, 浅灰眼眸, 侧脸微转, 唇线紧抿, 神色冷淡, 神情带着疏离感"
+                },
+                new AvatarUrl
+                {
+                    Id = 21, Name = "20200510132433_oqlyd", Url = "Resource/Avatar/20200510132433_oqlyd.jpg",
+                    Description = "浅灰长发少女, 清透蓝眼眸, 抬手轻捻发丝, 神色柔和, 唇微张, 安静温婉"
+                },
+                new AvatarUrl
+                {
+                    Id = 22, Name = "20200601214042_ufuwv", Url = "Resource/Avatar/20200601214042_ufuwv.jpg",
+                    Description = "白发少年, 澄澈蓝眼睛, 轻托小猫, 脸颊泛红, 眉眼柔和, 带着腼腆欢喜"
+                },
+                new AvatarUrl
+                {
+                    Id = 23, Name = "20201219221757_b4b47", Url = "Resource/Avatar/20201219221757_b4b47.jpg",
+                    Description = "白发猫耳少年, 浅蓝眼眸, 手握杯子, 戴口罩, 眼神清冷, 神情淡漠"
+                },
+                new AvatarUrl
+                {
+                    Id = 24, Name = "20220212141358_c94d6", Url = "Resource/Avatar/20220212141358_c94d6.jpeg",
+                    Description = "灰发少女, 紫灰眼眸, 抬手轻掩脸颊, 脸颊泛红, 眼神羞怯, 软萌温顺"
+                },
+                new AvatarUrl
+                {
+                    Id = 25, Name = "20230123231249_9d8ac.thumb.400_0",
+                    Url = "Resource/Avatar/20230123231249_9d8ac.thumb.400_0.jpeg",
+                    Description = "浅蓝长发少女, 澄澈蓝眸, 微微侧首, 唇轻启, 神色懵懂, 恬静可爱"
+                },
+                new AvatarUrl
+                {
+                    Id = 26, Name = "19724921082172288", Url = "Resource/Avatar/19724921082172288.png",
+                    Description = "浅蓝短发少女, 橙红眼眸, 微微抬脸, 唇角轻抿, 神情温柔安静"
+                },
+                new AvatarUrl
+                {
+                    Id = 27, Name = "acgszz", Url = "Resource/Avatar/acgszz.png",
+                    Description = "青蓝长卷发少女, 紫眸, 一手抿眼, 怀抱小熊玩偶, 单眼轻眨, 娇俏慵懒"
+                },
+                new AvatarUrl
+                {
+                    Id = 28, Name = "green_h_neko", Url = "Resource/Avatar/green_h_neko.png",
+                    Description = "薄荷绿长发猫耳少女, 浅绿眼眸, 侧头眨眼, 脸颊泛红, 娇俏灵动"
+                },
+                new AvatarUrl
+                {
+                    Id = 29, Name = "huaban-6459710836", Url = "Resource/Avatar/huaban-6459710836.png",
+                    Description = "粉发猫耳少女, 淡紫眼眸, 抬手轻抵唇边, 脸颊泛红, 羞怯温柔"
+                },
+                new AvatarUrl
+                {
+                    Id = 30, Name = "huaban-6459712303", Url = "Resource/Avatar/huaban-6459712303.png",
+                    Description = "金发少女, 橙红眼眸, 比出剪刀手, 单眼眨动, 笑容明媚活泼"
+                },
+                new AvatarUrl
+                {
+                    Id = 31, Name = "R-C", Url = "Resource/Avatar/R-C.jpg",
+                    Description = "浅银长发高马尾少女, 深蓝眼眸, 手轻攥衣领, 小嘴微张, 神情是软乎乎的, 充满好奇"
+                },
+                new AvatarUrl
+                {
+                    Id = 32, Name = "scs", Url = "Resource/Avatar/scs.png",
+                    Description = "粉渐变长发少女, 青绿色眼眸, 裹紧衣袖, 浅浅含笑, 神情温顺软萌"
+                }
             );
         });
 
@@ -159,31 +230,33 @@ public partial class KeKeContext : DbContext
                 new Tags { Id = 11, TagName = "体贴", },
                 new Tags { Id = 12, TagName = "自恋", },
                 new Tags { Id = 13, TagName = "迟钝", },
-                new Tags { Id = 14, TagName = "优柔寡断" },
+                new Tags { Id = 14, TagName = "选择困难症" },
                 new Tags { Id = 15, TagName = "清纯" },
                 new Tags { Id = 16, TagName = "慵懒" },
                 new Tags { Id = 17, TagName = "偶像" },
                 new Tags { Id = 18, TagName = "天才" },
-                new Tags { Id = 19, TagName = "中二病" }
+                new Tags { Id = 19, TagName = "中二病" },
+                new Tags { Id = 20, TagName = "毒舌" },
+                new Tags { Id = 21, TagName = "冷漠" },
+                new Tags { Id = 22, TagName = "热情" },
+                new Tags { Id = 23, TagName = "病娇" },
+                new Tags { Id = 24, TagName = "方言味重" },
+                new Tags { Id = 25, TagName = "洋气" },
+                new Tags { Id = 26, TagName = "沉稳" },
+                new Tags { Id = 27, TagName = "稚气" },
+                new Tags { Id = 28, TagName = "猫系人格" },
+                new Tags { Id = 29, TagName = "吃货" },
+                new Tags { Id = 30, TagName = "夜猫子" }
             );
         });
 
 
         // ── 会话 / 参与者 / 消息（显式 ToTable 固定表名，与迁移一致）──
-        modelBuilder.Entity<Session>(entity =>
-        {
-            entity.ToTable("Session");
-        });
+        modelBuilder.Entity<Session>(entity => { entity.ToTable("Session"); });
 
-        modelBuilder.Entity<SessionParticipant>(entity =>
-        {
-            entity.ToTable("SessionParticipant");
-        });
+        modelBuilder.Entity<SessionParticipant>(entity => { entity.ToTable("SessionParticipant"); });
 
-        modelBuilder.Entity<Messages>(entity =>
-        {
-            entity.ToTable("Messages");
-        });
+        modelBuilder.Entity<Messages>(entity => { entity.ToTable("Messages"); });
 
         // ── AI 标签关联（显式实体表）──
         // 一对 (UserId, TagsId) 全局唯一：显式化后主键是代理键 Id,

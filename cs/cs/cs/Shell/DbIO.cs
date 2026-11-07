@@ -156,7 +156,8 @@ public class DbIO
             SessionId = sessionId,
             UserId = memberId,
             Content = memberContent,
-            Type = type
+            Type = type,
+            SendAt = DateTime.Now
         };
         await _db.Messages.AddAsync(messags);
         await _db.SaveChangesAsync();

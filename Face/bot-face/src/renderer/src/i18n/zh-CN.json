@@ -23,6 +23,7 @@
     "gender": "性别",
     "boy": "♂男孩",
     "girl": "♀女孩",
+    "modelSelect": "选择模型",
     "call": "称呼",
     "canNotSay": "神秘占位",
     "placeholder": "多大了喵~",
