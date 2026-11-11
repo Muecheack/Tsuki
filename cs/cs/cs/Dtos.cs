@@ -16,7 +16,7 @@ public record UserChatDto(string userName, int? sessionId, string message, strin
 // AI返回的格式
 public record AIChatDto(string aiName, int? sessionId, string message, string type);
 
-// 转发给 AI 端的载荷：带上 sessionId，AI 端回传时才知道往哪个会话存
+// 发给 AI 的载荷，sessionId 要带回来
 public record AiPayload(string apiKey, int sessionId, AiInfo persona, Dictionary<string, List<RoleContent>> messages);
 
 public record PrePersonDto(string userName, string aiName);
@@ -46,6 +46,5 @@ public record SelectedDto(List<string> tags, int avatarId);
 public record ApplyFriendDto(List<string> tags, string avatarUrl, string preReply, string userName, string aiName);
 
 // 发文件的
-// 全部字段可空：交给 FileController 自己校验并返回带 code 的 400。
-// 如果字段是非空类型，模型校验会先一步回 problem+json（没有 code），前端只能打出 undefined
+// 字段全给可空，交给接口自己校验；不然模型校验先回 problem+json，前端拿不到 code。
 public record FileDto(string? aiName, string? userName, IFormFile? file, int? sessionId);

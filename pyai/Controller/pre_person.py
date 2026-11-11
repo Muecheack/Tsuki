@@ -76,17 +76,23 @@ def pre_person() -> Response:
     )
     # 生成预人设の提示词
     to_promp_file_pre(tags, avatars, ai_name, user_name, gender, call_name)
+
     logger.info("已生成预人设提示词文件: prmp/prmp_pre.txt")
+
     prmp: str = file_IO.load_prompt_from_file("prmp/prmp_pre.txt")
+
     logger.info("已加载预人设提示词: 字符数=%s", len(prmp))
+
     pre_history: list[dict[str, Any]] = [{"role": "user", "content": "打个招呼吧~"}]
     pre_all_history: list[dict[str, Any]] = parse.insert_prmp_to_session(
         pre_history, prmp
     )
 
     ai_reply: str = ai_service.get_ai_reply(pre_all_history, api_key)
+
     logger.info("AI 回复成功: 字符数=%s", len(ai_reply or ""))
     logger.debug("AI 回复内容: %s", ai_reply)
+
     ai_reply_dict: dict[str, Any] = parse.parse_reply_to_dict(ai_reply)
     if not ai_reply_dict:
         logger.warning("AI 回复解析为空, 将按默认值兜底: ai_reply=%r", ai_reply)

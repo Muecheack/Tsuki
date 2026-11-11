@@ -106,9 +106,7 @@ public class DbIO
         return IOState.Found;
     }
 
-    // 存avatar-url
-    // 前端传的是绝对路径(http://localhost:5108/Resource/Avatar/x.jpg),
-    // 库里是相对路径(Resource/Avatar/x.jpg), 直接全等永远匹配不上, 所以先归一化再比
+    // 前端传绝对路径，库里存相对路径，先归一化再比，不然永远匹配不上。
     public async Task<IOState> SaveAvatarAsync(string avatarUrl, int aiId)
     {
         if (string.IsNullOrWhiteSpace(avatarUrl)) return IOState.NotFound;
@@ -163,7 +161,7 @@ public class DbIO
         await _db.SaveChangesAsync();
     }
     
-    // 拿文本类文件的里边的文本
+    // 读文本文件的内容
     public async Task<(string fileName, string fileContent)> GetFileString(IFormFile file, Encoding? encoding = null)
     {
         if (file == null || file.Length == 0)

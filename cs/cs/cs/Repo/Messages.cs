@@ -5,9 +5,7 @@ public class Messages
     public int Id  { get; set; }
     public int SessionId  { get; set; }
     public int UserId  { get; set; }
-    /// <summary>
-    /// text | file
-    /// </summary>
+    /// <summary>text | file</summary>
     public string? Type  { get; set; }
     public string? Content { get; set; }
     public  DateTime SendAt  { get; set; }

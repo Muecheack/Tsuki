@@ -35,16 +35,13 @@ public partial class KeKeContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("Call_Name");
             entity.Property(e => e.Gender).HasMaxLength(50);
-            // Name 是几乎所有查询的入口（登录、注册去重、按名字找 AI）。
-            // SQL Server 的默认排序规则不区分大小写，而 SQLite 的 = 走 BINARY 是区分的 ——
-            // 不加 NOCASE，"Alice" 和 "alice" 就会被当成两个不同的用户。
-            // 注：NOCASE 只折叠 ASCII 大小写，中文本来就没有大小写，不受影响。
+            // Name 查询要不分大小写，SQLite 得显式加 NOCASE（中文不受影响）。
             entity.Property(e => e.Name)
                 .HasMaxLength(50)
                 .UseCollation("NOCASE");
         });
 
-        // ── 头像库（内置字典表：初始化一次，不受外部改变）──
+        // 头像库（内置数据）
         modelBuilder.Entity<AvatarUrl>(entity =>
         {
             entity.ToTable("AvatarUrl");
@@ -210,8 +207,7 @@ public partial class KeKeContext : DbContext
             );
         });
 
-        // ── 标签库（内置字典表：初始化一次，不受外部改变）──
-        // 标签与用户多对多关联（User.TagsAI）
+        // 标签库和 AI 的标签关联
         modelBuilder.Entity<Tags>(entity =>
         {
             entity.ToTable("Tags");
@@ -251,16 +247,14 @@ public partial class KeKeContext : DbContext
         });
 
 
-        // ── 会话 / 参与者 / 消息（显式 ToTable 固定表名，与迁移一致）──
+        // 会话、参与者、消息
         modelBuilder.Entity<Session>(entity => { entity.ToTable("Session"); });
 
         modelBuilder.Entity<SessionParticipant>(entity => { entity.ToTable("SessionParticipant"); });
 
         modelBuilder.Entity<Messages>(entity => { entity.ToTable("Messages"); });
 
-        // ── AI 标签关联（显式实体表）──
-        // 一对 (UserId, TagsId) 全局唯一：显式化后主键是代理键 Id,
-        // 唯一性得靠这个索引兜住（等价于旧隐式表的复合主键）
+        // 一对 (UserId, TagsId) 唯一，代理主键不够，靠唯一索引兜底。
         modelBuilder.Entity<TagsUser>(entity =>
         {
             entity.ToTable("TagsUser");

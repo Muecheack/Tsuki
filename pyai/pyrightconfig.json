@@ -1,0 +1,24 @@
+{
+  // 让 pyright / Pylance 使用项目自带的 .venv 作为解释器。
+  // 没有这个文件时，pyright 会用 PATH 里的全局 python，
+  // .venv 里独有的包全部会报 "Import could not be resolved"。
+  "venvPath": ".",
+  "venv": ".venv",
+
+  // 同时把这个目录作为 Pyright 的根目录：
+  // 上层 D:\AllMyProjects\Tsuki 有 .git，没有本项目标记时
+  // LSP 的 root_dir 会一路爬到 git 仓库顶上，导致项目内相对导入/配置丢失。
+  "include": ["."],
+  "exclude": [
+    "**/__pycache__",
+    "**/node_modules",
+    ".venv"
+  ],
+
+  "executionEnvironments": [
+    {
+      "root": ".",
+      "extraPaths": ["."]
+    }
+  ]
+}

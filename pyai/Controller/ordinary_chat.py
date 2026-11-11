@@ -40,6 +40,7 @@ ordinary_chat_bp = Blueprint("ordinary_chat", __name__)
 {
 	aiName: xxx, 
 	sessionId(可选): 000,
+    wantReply: want|wont
 	message: xxx,
 	type: xxx
 }
@@ -80,11 +81,16 @@ def ordinary_chat() -> Response:
     # 接收到的sessionId: sessionId, name: messages, session_list: {'测试用户1': [{'role': 'user', 'content': '你好'}]}
     prmp_path = "prmp/prmp_chat.txt"
     prmp: str = file_IO.load_prompt_from_file(prmp_path)
+
     logger.info("已加载人设提示词: path=%s, 字符数=%s", prmp_path, len(prmp))
+
     history = parse.insert_prmp_to_session(session_list, prmp)
+
     logger.info("已拼接提示词与历史, 待发送消息条数=%s", len(history))
     # 未来把类型换成list
     response: str = ai_service.get_ai_reply(history, api_key)
+    response_json: dict = parse.parse_reply_to_dict(response)
+
     logger.info("AI 回复成功: sessionId=%s, 字符数=%s", sessionId, len(response or ""))
     logger.debug("AI 回复内容: %s", response)
 
@@ -94,7 +100,8 @@ def ordinary_chat() -> Response:
         {
             "aiName": ai_name,
             "sessionId": sessionId,
-            "message": response,
+            "wantReply": response_json.get("wantReply"),
+            "message": response_json.get("content"),
             "type": "text",
         }
     )

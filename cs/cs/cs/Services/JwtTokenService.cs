@@ -5,10 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace cs.Services;
 
-    /// <summary>
-    /// JWT 令牌签发服务（通用样板，与具体业务无关）。
-    /// 在业务代码（注册/登录控制器）里注入它来签发 token。
-    /// </summary>
+    /// 签 JWT 用的服务。
     public class JwtTokenService
     {
         private readonly IConfiguration _config;
@@ -18,10 +15,7 @@ namespace cs.Services;
             _config = config;
         }
 
-        /// <summary>
-        /// 签发 JWT。claims 里放"以后能认出这个用户"的信息，例如 new Claim("UserId", user.Id.ToString())。
-        /// 有效期 7 天。
-        /// </summary>
+        /// 签发 token，claims 用来认用户，30 天有效。
         public string CreateToken(IEnumerable<Claim> claims)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));

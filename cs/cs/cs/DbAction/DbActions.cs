@@ -38,9 +38,8 @@ public class DbActions
         return userId?.Id;
     }
 
-    /// 按名字找 AI 的 Id, 有头像(=建的时候带人设)的优先
-    /// 老数据里同一个 AI 名字底下堆过好几条空壳用户, 直接 FirstOrDefault 可能抓到没头像的那条
-    /// excludeUserId: 排除真人自己(历史数据里有 AI 被存成用户名的情况, 别把真人的 id 当成 AI)
+    /// 按名字找 AI，有头像的优先，顺手排掉真人自己。
+    /// 老数据有同名空壳，直接 FirstOrDefault 可能抓错。
     public async Task<int?> GetAiIdByNameAsync(string aiName, int excludeUserId)
     {
         return await _db.Users
@@ -80,8 +79,8 @@ public class DbActions
         await _db.SaveChangesAsync();
     }
 
-    /// 找这个会话里"那位 AI"完整信息: 优先挑有头像(=建的时候带人设)的, 再按 id 稳定排序
-    /// 之所以不用 pyai 回来的 aiName 定身份: 它回的是会话字典的 key(用户名), 拿它建用户会造同名空壳
+    /// 找会话里的 AI，有头像的优先，再按 Id 稳定排序。
+    /// 不用 pyai 回来的名字定身份，那是会话 key，拿它建用户会造同名空壳。
     private async Task<User?> GetAiOfSessionAsync(int sessionId, int userId)
     {
         var aiIds = await _db.SessionParticipants
@@ -150,7 +149,7 @@ public class DbActions
 
         if (ai is null)
         {
-            // 会话里压根没有 AI: 给个空人设, 因为 pyai 端是直接 persona.get(...), 给 null 会在那边崩
+            // 没有 AI 就给空人设，pyai 那边拿 null 会崩。
             return new AiInfo(
                 string.Empty, string.Empty,
                 user?.CallName ?? string.Empty, user?.Gender ?? string.Empty,
@@ -164,7 +163,7 @@ public class DbActions
 
         return new AiInfo(
             ai.Name ?? string.Empty,
-            ai.AvatarUrl?.Description ?? string.Empty, // 以前这里直接 .Description, AI 没头像就空引用
+            ai.AvatarUrl?.Description ?? string.Empty, // 以前直接拿 .Description，没头像会空引用
             user?.CallName ?? string.Empty,
             user?.Gender ?? string.Empty,
             tags);

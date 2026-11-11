@@ -2,21 +2,8 @@
 
 public static class SwitchFormat
 {
-    // 转换成给pyai要的格式
-    // 大概长这样:
-    // {
-    //  "apiKey": xxx,
-    //  "userNameDict": {
-    //      "张三": {
-    //           "aiName": "...",
-    //            "session": [],
-    //            "tags": [...],
-    //            "avatars": [{...}],
-    //            "gender": "...",
-    //          "callName": "..."
-    //       }
-    //    }
-    // }
+    // 转成 pyai 要的格式，大概是 { apiKey, userNameDict: { 用户名: 人设... } }
+    // 这里先只塞当前用户。
     public static PrePersonPayload FormatDict(string userName, string aiName, string gender,
         string callName, List<string> tags, List<IdDescription> avatars, string apiKey)
     {
