@@ -11,7 +11,7 @@ public class DbActions
     {
         _db = db;
     }
-    
+
     /// 把前端传入的名字，性别，称呼，key扔数据库里
     public async Task<User> AddInDbAsync(string name, string gender, string callName, string apiKey, int? avatarUrlId = null)
     {
@@ -30,9 +30,9 @@ public class DbActions
         await _db.SaveChangesAsync();
         return ai.Id;
     }
-    
+
     /// 拿UserId, 无逻辑
-    public async Task< int?> GetUserId(string userName)
+    public async Task<int?> GetUserId(string userName)
     {
         var userId = await _db.Users.FirstOrDefaultAsync(x => x.Name == userName);
         return userId?.Id;
@@ -49,7 +49,7 @@ public class DbActions
             .Select(x => (int?)x.Id)
             .FirstOrDefaultAsync();
     }
-    
+
     // 拿key, 再写一遍是图方便, 否则要拆迁
     public async Task<string> GetApiKeyAsync(string userName)
     {
@@ -121,26 +121,26 @@ public class DbActions
         await _db.Messages.AddAsync(messags);
         await _db.SaveChangesAsync();
     }
-    
+
     /// 判断用户名是否存在
     public async Task<bool> UserExitAsync(string name)
     {
         return await _db.Users.AnyAsync(x => x.Name == name);
     }
-    
+
     /// 装饰器, 用户存在就返回Id, 不存在就返回
     public Func<Func<string, Task<int?>>, Func<string, Task<int?>>> WithExistenceCheck(Func<string, Task<bool>> isExist)
     {
         return getId => async name => await isExist(name) ? await getId(name) : (int?)null;
     }
-    
+
     /// 把当前session_id的所有会话拿出来
     public async Task<List<Messages>> GetChatHistoryAsync(int currentSessionId)
     {
         var fi = await _db.Messages.Where(x => x.SessionId == currentSessionId).ToListAsync();
         return fi;
     }
-    
+
     // 跟据sessionId把当前AI的name, tags, avatar描述拿出来
     private async Task<AiInfo> GetInfoOfCurrAi(int sessionId, int userId)
     {
@@ -170,7 +170,13 @@ public class DbActions
     }
 
     /// 转换成pyai要的格式
-    public async Task<AiPayload> MapRoleContent(int sessionId, int userId, string userName, List<Messages> messages, string apiKey)
+    public async Task<AiPayload> MapRoleContent(
+        int sessionId,
+        int userId,
+        string userName,
+        List<Messages> messages,
+        string apiKey
+        )
     {
         var result = messages.Select(x => new RoleContent
         (

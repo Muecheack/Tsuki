@@ -1,6 +1,7 @@
 using System.Text;
 using cs.DbAction;
 using cs.Endpoints;
+using cs.Mods.Notifation;
 using cs.Repo;
 using cs.Services;
 using cs.Shell;
@@ -77,6 +78,8 @@ public class Program
         builder.Services.AddScoped<SendToAi>();
         // 注册DbIo
         builder.Services.AddScoped<DbIO>();
+        // 注册TimerEvent
+        builder.Services.AddScoped<Shell_TimerEvent>();
         // http注入
         builder.Services.AddHttpClient<SendToAi>();
         // 注册 HttpIo（之前漏了，接口一直 500）
@@ -87,6 +90,8 @@ public class Program
             options.AddPolicy("dev", policy =>
                 policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
         });
+        // 注册 SignalR
+        builder.Services.AddSignalR();
 
         var app = builder.Build();
 
@@ -121,6 +126,9 @@ public class Program
 
         var api = app.MapGroup("api");
         if (authEnable) api.RequireAuthorization();
+
+        // 注册 SignalR
+        api.MapHub<ChatHub>("/api/chatHub");
 
         api.MapPost("/Auth/register", AuthEndpoints.Register).AllowAnonymous();
         api.MapPost("/ApplyFriend/apply", ApplyFriendEndpoints.ApplyFriend);

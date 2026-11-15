@@ -14,7 +14,7 @@ public record RoleContent(string role, string content);
 public record UserChatDto(string userName, int? sessionId, string message, string type);
 
 // AI返回的格式
-public record AIChatDto(string aiName, int? sessionId, string message, string type);
+public record AIChatDto(string aiName, int? sessionId, string message, string type, string wantReply);
 
 // 发给 AI 的载荷，sessionId 要带回来
 public record AiPayload(string apiKey, int sessionId, AiInfo persona, Dictionary<string, List<RoleContent>> messages);

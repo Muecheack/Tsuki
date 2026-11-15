@@ -24,7 +24,7 @@ public sealed class FileEndpoints
             });
         }
 
-        // 缺哪个就说哪个，别只回“参数不合法”。
+        // 缺哪个就说哪个
         if (string.IsNullOrWhiteSpace(aiName))
         {
             return Results.BadRequest(new

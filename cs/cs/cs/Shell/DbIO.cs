@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace cs.Shell;
 
+// 它和 DbAction 有许多方法甚至是重复的, 但是不要重构, 留着便是
 public class DbIO
 {
     private readonly KeKeContext _db;
@@ -160,7 +161,7 @@ public class DbIO
         await _db.Messages.AddAsync(messags);
         await _db.SaveChangesAsync();
     }
-    
+
     // 读文本文件的内容
     public async Task<(string fileName, string fileContent)> GetFileString(IFormFile file, Encoding? encoding = null)
     {
@@ -173,10 +174,10 @@ public class DbIO
 
         using var stream = file.OpenReadStream();
         using var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true);
-        
+
         var fileContent = await reader.ReadToEndAsync();
         var fileName = file.FileName;
-        
+
         return (fileName, fileContent);
     }
 }

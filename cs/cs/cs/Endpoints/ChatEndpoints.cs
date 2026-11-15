@@ -1,4 +1,6 @@
 using cs.DbAction;
+using cs.Mods.Notifation;
+using cs.Repo;
 using cs.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +12,9 @@ public sealed class ChatEndpoints
         [FromBody] UserChatDto chat,
         DbActions dbAction,
         SendToAi sendToAi,
-        IConfiguration config)
+        IConfiguration config,
+        Shell_CallAi shell_CallAi,
+        Shell_TimerEvent shell_TimerEvent)
     {
         if (EndpointValidation.Required(
                 ("userName", chat.userName),
@@ -21,7 +25,6 @@ public sealed class ChatEndpoints
         }
 
         // 用户发消息就处理用户(service), AI回消息才处理AI(client)
-
         var userName = chat.userName;
         var content = chat.message;
         var type = chat.type;
@@ -45,31 +48,8 @@ public sealed class ChatEndpoints
                 {
                     // 创建会话
                     var sessionId = await dbAction.CreateSessionAsync(uid);
-                    // 保存消息
-                    await SaveUserMessageAsync(dbAction, sessionId, uid, content, type);
-                    // 扔给ai
-                    var history = await dbAction.GetChatHistoryAsync(sessionId);
-                    var payload = await dbAction.MapRoleContent(sessionId, uid, userName, history, apiKey);
-                    var reply = await sendToAi.SendAiAsync(aiUrl, payload);
-
-                    // AI走相同路径(存数据库, 返回给前端)
-                    if (reply.sessionId is { } asid)
-                    {
-                        var aiId = await ResolveAiIdAsync(dbAction, reply.aiName, asid, uid);
-                        await dbAction.SaveChatInMessageAsync(asid, aiId,
-                            reply.message, reply.type);
-                    }
-
-                    return Results.Ok(new
-                    {
-                        code = 200,
-                        message = "Ok",
-                        data = new
-                        {
-                            reply.sessionId,
-                            reply.message
-                        }
-                    });
+                    return await ProcessChatAsync(dbAction, sendToAi, shell_CallAi, shell_TimerEvent: shell_TimerEvent, aiUrl, sessionId, uid,
+                        userName, content, type, apiKey, isNewSession: true);
                 }
 
                 return Results.BadRequest(new
@@ -90,28 +70,8 @@ public sealed class ChatEndpoints
         {
             if (userId is { } uid && currentSessionId is { } csid)
             {
-                // 保存消息
-                await SaveUserMessageAsync(dbAction, csid, uid, content, type);
-                // 扔给ai
-                var history = await dbAction.GetChatHistoryAsync(csid);
-                var payload = await dbAction.MapRoleContent(csid, uid, userName, history, apiKey);
-                var reply = await sendToAi.SendAiAsync(aiUrl, payload);
-
-                // AI走相同路径(存数据库, 返回给前端)
-                var aiId = await ResolveAiIdAsync(dbAction, reply.aiName, csid, uid);
-                await dbAction.SaveChatInMessageAsync(csid, aiId,
-                    reply.message, reply.type);
-                // TODO: 前端要求格式并非如此
-                return Results.Ok(new
-                {
-                    code = 200,
-                    message = "Ok",
-                    data = new
-                    {
-                        reply.sessionId,
-                        reply.message
-                    }
-                });
+                return await ProcessChatAsync(dbAction, sendToAi, shell_CallAi, shell_TimerEvent: shell_TimerEvent, aiUrl, csid, uid,
+                    userName, content, type, apiKey, isNewSession: false);
             }
 
             return Results.BadRequest(new
@@ -125,6 +85,58 @@ public sealed class ChatEndpoints
             Console.WriteLine(e);
             throw;
         }
+    }
+
+    // 落库 -> 发 AI -> 落库 -> 响应前端 的链条
+    private static async Task<IResult> ProcessChatAsync(
+        DbActions dbAction,
+        SendToAi sendToAi,
+        Shell_CallAi shell_CallAi,
+        Shell_TimerEvent shell_TimerEvent,
+        string aiUrl,
+        int sessionId,
+        int userId,
+        string userName,
+        string? content,
+        string? type,
+        string? apiKey,
+        bool isNewSession)
+    {
+        await SaveUserMessageAsync(dbAction, sessionId, userId, content, type);
+        var history = await dbAction.GetChatHistoryAsync(sessionId);
+        var payload = await dbAction.MapRoleContent(sessionId, userId, userName, history, apiKey);
+
+        // 把这些数据扔给Notifation模块用, 顺便启动计时器
+        shell_CallAi.GetInfoFactory = () => (sessionId, memberId: userId, userName, apiKey);
+        shell_TimerEvent.PutTimerBack(sessionId);
+        var reply = await sendToAi.SendAiAsync(aiUrl, payload);
+
+        if (isNewSession)
+        {
+            if (reply.sessionId is { } replySessionId)
+            {
+                var aiId = await ResolveAiIdAsync(dbAction, reply.aiName, replySessionId, userId);
+                await dbAction.SaveChatInMessageAsync(replySessionId, aiId,
+                    reply.message, reply.type);
+            }
+        }
+        else
+        {
+            var aiId = await ResolveAiIdAsync(dbAction, reply.aiName, sessionId, userId);
+            await dbAction.SaveChatInMessageAsync(sessionId, aiId,
+                reply.message, reply.type);
+        }
+
+        return Results.Ok(new
+        {
+            code = 200,
+            message = "Ok",
+            data = new
+            {
+                reply.sessionId,
+                reply.message
+            }
+        });
     }
 
     /// 用户消息落库，“只发文件”那轮的空正文跳过。
