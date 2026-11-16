@@ -78,8 +78,10 @@ public class Program
         builder.Services.AddScoped<SendToAi>();
         // 注册DbIo
         builder.Services.AddScoped<DbIO>();
-        // 注册TimerEvent
-        builder.Services.AddScoped<Shell_TimerEvent>();
+        // 注册TimerEvent为单例, 因为永生
+        builder.Services.AddSingleton<Shell_TimerEvent>();
+        // 注册Call_Ai为单例, 因为为监听器监听TimerEvent
+        builder.Services.AddSingleton<Shell_CallAi>();
         // http注入
         builder.Services.AddHttpClient<SendToAi>();
         // 注册 HttpIo（之前漏了，接口一直 500）
@@ -94,6 +96,7 @@ public class Program
         builder.Services.AddSignalR();
 
         var app = builder.Build();
+        app.Services.GetRequiredService<Shell_CallAi>();
 
         // 启动时自动迁移；库不存在就建表并灌种子数据。
         // 开 WAL，读写别互相卡。

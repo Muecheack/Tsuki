@@ -13,7 +13,6 @@ public sealed class ChatEndpoints
         DbActions dbAction,
         SendToAi sendToAi,
         IConfiguration config,
-        Shell_CallAi shell_CallAi,
         Shell_TimerEvent shell_TimerEvent)
     {
         if (EndpointValidation.Required(
@@ -48,7 +47,7 @@ public sealed class ChatEndpoints
                 {
                     // 创建会话
                     var sessionId = await dbAction.CreateSessionAsync(uid);
-                    return await ProcessChatAsync(dbAction, sendToAi, shell_CallAi, shell_TimerEvent: shell_TimerEvent, aiUrl, sessionId, uid,
+                    return await ProcessChatAsync(dbAction, sendToAi, shell_TimerEvent: shell_TimerEvent, aiUrl, sessionId, uid,
                         userName, content, type, apiKey, isNewSession: true);
                 }
 
@@ -70,7 +69,7 @@ public sealed class ChatEndpoints
         {
             if (userId is { } uid && currentSessionId is { } csid)
             {
-                return await ProcessChatAsync(dbAction, sendToAi, shell_CallAi, shell_TimerEvent: shell_TimerEvent, aiUrl, csid, uid,
+                return await ProcessChatAsync(dbAction, sendToAi, shell_TimerEvent: shell_TimerEvent, aiUrl, csid, uid,
                     userName, content, type, apiKey, isNewSession: false);
             }
 
@@ -91,7 +90,6 @@ public sealed class ChatEndpoints
     private static async Task<IResult> ProcessChatAsync(
         DbActions dbAction,
         SendToAi sendToAi,
-        Shell_CallAi shell_CallAi,
         Shell_TimerEvent shell_TimerEvent,
         string aiUrl,
         int sessionId,
@@ -106,9 +104,8 @@ public sealed class ChatEndpoints
         var history = await dbAction.GetChatHistoryAsync(sessionId);
         var payload = await dbAction.MapRoleContent(sessionId, userId, userName, history, apiKey);
 
-        // 把这些数据扔给Notifation模块用, 顺便启动计时器
-        shell_CallAi.GetInfoFactory = () => (sessionId, memberId: userId, userName, apiKey);
-        shell_TimerEvent.PutTimerBack(sessionId);
+        // 启动计时器
+        shell_TimerEvent.PutTimerBack(sessionId, userId, userName);
         var reply = await sendToAi.SendAiAsync(aiUrl, payload);
 
         if (isNewSession)
