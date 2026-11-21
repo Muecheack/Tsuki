@@ -126,6 +126,7 @@ async function sendMessage() {
                 content,
                 content ? 'text' : 'file'
             );
+            console.log(`正常聊天收到的消息(chatPage): ${replyMessage}`)
             // 注：消息落盘由 store 里 watch(friends, { deep: true }) 统一负责（addChatList 一追加就写回）
             chat.addChatList(targetName, targetName, replyMessage || '出现错误，请稍后再试');
         } catch (err) {

@@ -4,11 +4,13 @@
     <meta charset="UTF-8" />
     <title>Electron</title>
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <!-- codex: SignalR 本地 WebSocket 也必须加入 connect-src。 -->
+    <!-- codex: 组件库使用内嵌 data: 字体，需要显式放行 font-src。 -->
     <!-- img-src / connect-src 放行本地 http 后端（http://localhost / 127.0.0.1），
          头像等静态资源由后端以 http URL 返回；将来后端固定域名后把白名单换成该域名 -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: http://localhost:* http://127.0.0.1:*; connect-src 'self' http://localhost:* http://127.0.0.1:*"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: http://localhost:* http://127.0.0.1:*; font-src 'self' data: http://localhost:* http://127.0.0.1:*; connect-src 'self' http://localhost:* http://127.0.0.1:* ws://localhost:* ws://127.0.0.1:*"
     />
   </head>
 

@@ -109,6 +109,9 @@ public class DbActions
     /// 保存会话
     public async Task SaveChatInMessageAsync(int sessionId, int memberId, string memberContent, string? type = "text")
     {
+        // codex: 空 AI 消息会污染后续 OpenAI 历史，禁止落库。
+        if (string.IsNullOrWhiteSpace(memberContent)) return;
+
         // 新增消息而非修改
         var messags = new Messages
         {
@@ -178,11 +181,17 @@ public class DbActions
         string apiKey
         )
     {
-        var result = messages.Select(x => new RoleContent
-        (
-            x.UserId == userId ? "user" : "assistant",
-            x.Content
-        )).ToList();
+        // codex: 过滤历史空消息并按时间/Id稳定排序，避免空 assistant 导致 OpenAI 400。
+        var result = messages
+            .Where(x => !string.IsNullOrWhiteSpace(x.Content))
+            .OrderBy(x => x.SendAt)
+            .ThenBy(x => x.Id)
+            .Select(x => new RoleContent
+            (
+                x.UserId == userId ? "user" : "assistant",
+                x.Content!
+            ))
+            .ToList();
         var end = new Dictionary<string, List<RoleContent>>
         {
             [userName] = result

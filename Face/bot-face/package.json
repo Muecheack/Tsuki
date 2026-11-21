@@ -25,6 +25,7 @@
     "@creatorsn/vfluent3": "^0.3.92",
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
+    "@microsoft/signalr": "^11.0.0",
     "axios": "^1.19.0",
     "electron-updater": "^6.3.9",
     "pinia": "^4.0.2",

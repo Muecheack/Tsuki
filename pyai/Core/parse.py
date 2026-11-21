@@ -59,7 +59,16 @@ def get_info_pre(prop_dict: dict) -> tuple:
 
 # 把prmp塞到历史列表的最前方
 def insert_prmp_to_session(history: list, prmp: str) -> list:
-    return [{"role": "system", "content": prmp}] + history
+    # codex: OpenAI 会拒绝 content 为空的 assistant/user 历史，正常聊天和超时聊天共用此过滤。
+    clean_history = [
+        message
+        for message in history
+        if isinstance(message, dict)
+        and message.get("role") in {"user", "assistant"}
+        and isinstance(message.get("content"), str)
+        and message["content"].strip()
+    ]
+    return [{"role": "system", "content": prmp}] + clean_history
 
 
 # 把回复解析成字典

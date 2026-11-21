@@ -41,7 +41,6 @@ public class Shell_TimerEvent(IServiceScopeFactory _scopeFacotry)
         {
             while (await timer.WaitForNextTickAsync(token))
             {
-
                 using var scope = _scopeFacotry.CreateScope();
                 try
                 {
@@ -59,7 +58,7 @@ public class Shell_TimerEvent(IServiceScopeFactory _scopeFacotry)
 
                     var timeSpan = DateTime.Now - lastMessage.SendAt;
 
-                    if (timeSpan.TotalMinutes > 5)
+                    if (timeSpan.TotalMinutes > 1)
                     {
                         // 发出事件, 为空就直接退出
                         if (OverTime is null) return;

@@ -236,6 +236,7 @@ export const useChatStore = defineStore('chat', () => {
     type: 'text' | 'card' | 'file' = 'text',
     fileSize?: string
   ) {
+    console.log(`正常聊天收到的消息: ${text}`)
     const target = friends.value.find((x) => x.name === parentName)
     if (target) {
       const msg: IMessage = { sender, text, type }
@@ -245,6 +246,23 @@ export const useChatStore = defineStore('chat', () => {
       // 自己发的（sender === 'user'）不算；用户正打开这个会话（activeChat）也不算
       if (sender !== 'user' && parentName !== activeChat.value) target.unread++
     }
+  }
+
+  // codex: SignalR 主动推送的 AI 消息写回现有聊天列表。
+  function addIncomingAiMessage(aiName: string, text: string) {
+    //const targetName =
+    //aiName === AI_PERSON_NAME
+    //   ? OFFICIAL_ID
+    //: friends.value.find((friend) => friend.name === aiName)?.name ?? aiName
+    console.log(`SinalR推送的消息: ${text}`)
+
+    if (!friends.value.find((friend) => friend.name === aiName)) {
+      chatListInit(aiName)
+    }
+
+    addChatList(aiName, aiName, text)
+    // codex: SignalR 来自组件生命周期之外，追加后立即落本地，避免只停留在当前 Pinia 内存态。
+    setFriendLocal(friends.value)
   }
 
   // 置顶好友(把选中好友的位置删了然后插入index0)
@@ -284,6 +302,7 @@ export const useChatStore = defineStore('chat', () => {
     personTages,
     chatListInit,
     addChatList,
+    addIncomingAiMessage,
     pinFriend,
     removeFriend,
     clearUnread,

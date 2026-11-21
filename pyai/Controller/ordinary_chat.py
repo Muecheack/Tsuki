@@ -92,7 +92,7 @@ def ordinary_chat() -> Response:
     response_json: dict = parse.parse_reply_to_dict(response)
 
     logger.info("AI 回复成功: sessionId=%s, 字符数=%s", sessionId, len(response or ""))
-    logger.debug("AI 回复内容: %s", response)
+    logger.info("AI 回复内容: %s", response)
 
     # TODO: 未来把回复列表返回
     logger.info("返回常规聊天响应: sessionId=%s, aiName=%s", sessionId, name)

@@ -131,7 +131,8 @@ public class Program
         if (authEnable) api.RequireAuthorization();
 
         // 注册 SignalR
-        api.MapHub<ChatHub>("/api/chatHub");
+    // codex: api 组已经带 /api 前缀，这里只写 /chatHub，最终地址为 /api/chatHub。
+    api.MapHub<ChatHub>("/chatHub");
 
         api.MapPost("/Auth/register", AuthEndpoints.Register).AllowAnonymous();
         api.MapPost("/ApplyFriend/apply", ApplyFriendEndpoints.ApplyFriend);

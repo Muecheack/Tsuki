@@ -10,10 +10,10 @@ def get_ai_reply(session_list: list, api_key: str) -> str:
         model="deepseek-v4-pro",
         messages=[
             # TODO: 未来在提示词文件里加上把逗号换成分割符号,使ai按照分隔符回复
-            # TODO: 未来新增提示词文件用于自动化点赞(格式化输出模板)
             {"role": "system", "content": "You are a helpful assistant"},
             *session_list,
         ],
+        response_format={"type": "json_object"},
         stream=False,
         reasoning_effort="high",
         extra_body={"thinking": {"type": "enabled"}},

@@ -2,7 +2,8 @@ import axios from 'axios'
 
 // 后端基址：由 Electron 主进程在启动时通过 preload 注入（打包后端口是动态的，不能写死）。
 // 不在 Electron 里跑（比如直接用浏览器打开调试页）时回退到开发用的默认地址。
-const API_BASE = window.api?.apiBase ?? 'http://localhost:5108'
+// codex: SignalR 也复用同一个后端动态地址。
+export const API_BASE = window.api?.apiBase ?? 'http://localhost:5108'
 
 // 后端返回的业务错误（携带 code，便于前端区分"用户已存在"等场景）
 export class ApiError extends Error {

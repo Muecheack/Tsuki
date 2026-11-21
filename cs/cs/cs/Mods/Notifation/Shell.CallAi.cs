@@ -17,8 +17,6 @@ public class Shell_CallAi
         serviceScopeFactory = serviceScope;
         timerEvent = shell_Timer;
         timerEvent.OverTime += OnOverTime;
-
-        // TODO
     }
 
     public async Task<AIChatDto> CallAi(
@@ -66,7 +64,8 @@ public class Shell_CallAi
     {
         using var scope = serviceScopeFactory.CreateScope();
         var _dbIO = scope.ServiceProvider.GetRequiredService<DbIO>();
-        var _hubContext = scope.ServiceProvider.GetRequiredService<IHubContext>();
+        // codex: AddSignalR 注册的是泛型 HubContext，非泛型 IHubContext 无法从 DI 解析。
+        var _hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<ChatHub>>();
 
         var timeSpan = infos.timeSpan;
         var userId = infos.userId;
@@ -91,6 +90,9 @@ public class Shell_CallAi
             await _dbIO.SaveChatInMessageAsync(sessionId, memberId: aId, memberContent: aiReply.message);
         }
         else return; // Ai不存在就不再执行
-        await _hubContext.Clients.User($"{sessionId}").SendAsync("receivedMessage", aiName, aiReply.message);
+        // codex: 只推送给该数据库用户加入的 SignalR Group。
+        await _hubContext.Clients
+            .Group(ChatHub.UserGroup(userId))
+            .SendAsync("receivedMessage", aiName, aiReply.message);
     }
 }
