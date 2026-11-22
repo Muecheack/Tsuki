@@ -18,7 +18,15 @@ const api = {
   // 打开文件选择器，返回选中文件的路径数组
   selectFile: (): Promise<string[]> => ipcRenderer.invoke('select-file'),
   // 渲染进程用它拼后端地址，不要在 http.ts 里写死端口
-  apiBase: readApiBase()
+  apiBase: readApiBase(),
+  // codex: renderer 通过 contextBridge 请求主进程显示系统通知，避免直接导入 ipcRenderer。
+  sendNotify: (payload: {
+    title?: string
+    body?: string
+    avatarUrl?: string
+  }): void => {
+    ipcRenderer.send('show-notify', payload)
+  }
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

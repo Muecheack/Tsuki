@@ -73,12 +73,34 @@ function createWindow(): void {
   }
 }
 
-function sysNotifations({ title, body, icon }) {
+// codex: 统一主进程接收的通知参数：avatarUrl 由 renderer 经 preload 传入。
+interface SysNotificationPayload {
+  title?: string
+  body?: string
+  avatarUrl?: string
+}
+
+function sysNotifations({ title, body, avatarUrl }: SysNotificationPayload): void {
+  if (!Notification.isSupported()) return
+
   const notify = new Notification({
-    title,
-    body,
-    icon
+    title: title ?? 'Tsuki',
+    body: body ?? '',
+    icon: avatarUrl
   })
+  notify.on('click', () => {
+    // codex: 点击系统通知后恢复并聚焦主窗口，让用户回到应用。
+    const win = BrowserWindow.getAllWindows()[0]
+    if (!win) {
+      createWindow()
+      return
+    }
+    if (win.isMinimized()) win.restore()
+    win.show()
+    win.focus()
+  })
+  // codex: Notification 构造后必须调用 show()，系统弹窗才会真正出现。
+  notify.show()
 }
 
 /** 收掉两个子进程。多处事件都会调，靠 cleanedUp 保证幂等。 */
@@ -112,7 +134,7 @@ async function bootstrap(): Promise<void> {
   })
 
   // 监听show-notify, 准备系统弹窗
-  ipcMain.on('show-notify', (enent, payload) => {
+  ipcMain.on('show-notify', (_event, payload: SysNotificationPayload) => {
     sysNotifations(payload)
   })
 

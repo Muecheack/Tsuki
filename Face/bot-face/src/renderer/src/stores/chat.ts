@@ -246,9 +246,9 @@ export const useChatStore = defineStore('chat', () => {
       // 未读只算「对方发来的、且用户没在看的」新消息：
       // 自己发的（sender === 'user'）不算；用户正打开这个会话（activeChat）也不算
       if (sender !== 'user' && parentName !== activeChat.value) {
-        if (target.unread !== 0) {
-          sendNotisfy(target.name, target.message?.at(-1)?.text?.slice(0, 10), target.avator)
-        }
+        // codex: 先累加未读数，再按每条新消息触发系统通知。
+        target.unread++
+        sendNotisfy(target.name, text.slice(0, 10), target.avator)
       }
     }
   }
