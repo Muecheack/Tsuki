@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import nekoHead from '@/assets/avator/neko_head.png'
+import { sendNotisfy } from '@/notisfations'
 
 // 官方账号的稳定标识（不随语言变：会话查找 / sessionId key / 判断都用它）
 const OFFICIAL_ID = 'official'
@@ -244,7 +245,11 @@ export const useChatStore = defineStore('chat', () => {
       target.message.push(msg)
       // 未读只算「对方发来的、且用户没在看的」新消息：
       // 自己发的（sender === 'user'）不算；用户正打开这个会话（activeChat）也不算
-      if (sender !== 'user' && parentName !== activeChat.value) target.unread++
+      if (sender !== 'user' && parentName !== activeChat.value) {
+        if (target.unread !== 0) {
+          sendNotisfy(target.name, target.message?.at(-1)?.text?.slice(0, 10), target.avator)
+        }
+      }
     }
   }
 
@@ -285,6 +290,12 @@ export const useChatStore = defineStore('chat', () => {
     if (target) target.unread = 0
   }
 
+  // codex: 首次注册后把官方预置引导消息全部计为未读，数量与官方消息列表保持一致。
+  function markOfficialGuideUnread() {
+    const official = friends.value.find((f) => f.name === OFFICIAL_ID)
+    if (official) official.unread = official.message.length
+  }
+
   // 把后端返回的 sessionId 绑到某个联系人上（申请好友成功后调）
   // 好友对象一变，上面的 watch(friends, deep) 就会把它一起写回本地
   function setFriendSessionId(name: string, sessionId: number) {
@@ -306,6 +317,7 @@ export const useChatStore = defineStore('chat', () => {
     pinFriend,
     removeFriend,
     clearUnread,
+    markOfficialGuideUnread,
     setActiveChat,
     setFriendSessionId
   }

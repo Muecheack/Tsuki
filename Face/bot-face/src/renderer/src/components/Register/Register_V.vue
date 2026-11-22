@@ -42,7 +42,7 @@
                     <fv-text-box :placeholder="t('register.nicknamePlaceholder')" v-model="nameRegister"
                         class="w-full text-gray-500" />
                     <span v-if="nameIsNullOrWhiteSpace" class="text-red-300 text-xs">{{ t('register.nicknameEmpty')
-                        }}</span>
+                    }}</span>
                     <span v-if="userExist" class="text-red-300 text-xs">{{ t('register.userExist') }}</span>
                 </div>
 
@@ -185,6 +185,9 @@ const register = async () => {
             userId: id,
             nickname: nameRegister.value.trim()
         }))
+
+        // 首次注册标官方未读红点
+        chat.markOfficialGuideUnread()
 
         // 预发 AI 人设（官方好友的开场白/标签/头像）, pinia 供聊天卡片用
         try {

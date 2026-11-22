@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, dialog, Notification } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 // Linux 下的窗口图标。文件名要跟 resources\ 里的实际文件一致（不是模板默认的 icon.png），
@@ -73,6 +73,14 @@ function createWindow(): void {
   }
 }
 
+function sysNotifations({ title, body, icon }) {
+  const notify = new Notification({
+    title,
+    body,
+    icon
+  })
+}
+
 /** 收掉两个子进程。多处事件都会调，靠 cleanedUp 保证幂等。 */
 function cleanup(): void {
   if (cleanedUp) return
@@ -101,6 +109,11 @@ async function bootstrap(): Promise<void> {
       ]
     })
     return result.filePaths
+  })
+
+  // 监听show-notify, 准备系统弹窗
+  ipcMain.on('show-notify', (enent, payload) => {
+    sysNotifations(payload)
   })
 
   if (RUN_SIDECAR) {
